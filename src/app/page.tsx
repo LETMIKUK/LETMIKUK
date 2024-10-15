@@ -21,6 +21,12 @@ export default function Home() {
             .
           </li>
           <li>Save and see your changes instantly.</li>
+          <p className="font-bold">LETMIKUK</p>
+          <p>
+            Layanan Efektif untuk Tanggap Malnutrisi dan Intervensi Kesehatan
+            Untuk Kesejahteraan
+          </p>
+          <p>by the HOLDONLETMIKUK Team</p>
         </ol>
 
         <div className="flex gap-4 items-center flex-col sm:flex-row">
