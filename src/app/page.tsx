@@ -21,7 +21,7 @@ export default function Home() {
             .
           </li>
           <li>Save and see your changes instantly.</li>
-          <p className="font-bold">LETMIKUK</p>
+          <p className="font-bold mt-3">LETMIKUK</p>
           <p>
             Layanan Efektif untuk Tanggap Malnutrisi dan Intervensi Kesehatan
             Untuk Kesejahteraan
