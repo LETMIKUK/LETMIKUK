@@ -18,61 +18,86 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { MenuIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { categories } from "../json/adminSidebarLinks";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export const AdminSidebar = () => {
-  const [tab, setTab] = useState("analisa");
+  const pathname = usePathname(); // Get the current path
+  const [activeTab, setActiveTab] = useState<string>("");
+  useEffect(() => {
+    categories.forEach((category) => {
+      // Check if the current path matches any parent or child links
+      const isActive =
+        pathname.includes(`/admin/${category.id}`) ||
+        category.links.some((link) => pathname.includes(`/admin/${link.url}`));
+
+      // Set the active tab if any match
+      if (isActive) {
+        setActiveTab(category.id);
+        console.log(category.id);
+      }
+    });
+  }, [pathname]);
+
+  // preload tailwind classes
+  // bg-sky-100 text-sky-500 bg-amber-100 text-amber-500 bg-pink-100 text-pink-500 bg-lime-100 text-lime-500
 
   return (
-    <aside className="min-h-full bg-white py-5 px-2">
+    <aside className="min-h-full min-w-[200px] bg-white py-5 px-2">
       <Accordion
         className="min-h-full"
         type="multiple"
-        defaultValue={["analisa", "intervensi", "marketing", "edukasi"]}
+        defaultValue={categories.map((cat) => cat.id)}
       >
-        <AccordionItem className="border-b-0" value="analisa">
-          <AccordionTrigger
-            className={`${
-              tab === "analisa" ? "bg-sky-100 text-sky-500" : ""
-            } rounded-lg`}
-          >
-            Analisa Stunting per Provinsi
-          </AccordionTrigger>
-          <AccordionContent>
-            <p>Laporan Rangkuman</p>
-            <p>Pengolahan Budget Proyek</p>
-            <p>Pembuatan Proposal Proyek</p>
-          </AccordionContent>
-        </AccordionItem>
-        <AccordionItem className="border-b-0" value="intervensi">
-          <AccordionTrigger>Penanganan Proyek Intervensi</AccordionTrigger>
-          <AccordionContent>
-            <p>Laporan Hasil Proyek</p>
-            <p>Suplai & Tenaga Kerja</p>
-            <p>Pengrekrutan</p>
-          </AccordionContent>
-        </AccordionItem>
-        <Separator className="my-3" />
-        <AccordionItem className="border-b-0" value="marketing">
-          <AccordionTrigger>Penanganan Marketing</AccordionTrigger>
-          <AccordionContent>
-            <p>Laporan Rangkuman</p>
+        {categories.map((category) => {
+          const isActive = activeTab === category.id;
 
-            <p>Whatsapp</p>
-            <p>Instagram</p>
-            <p>Facebook</p>
-            <p>Pengrekrutan</p>
-          </AccordionContent>
-        </AccordionItem>
-        <AccordionItem className="border-b-0" value="edukasi">
-          <AccordionTrigger>Penanganan Edukasi</AccordionTrigger>
-          <AccordionContent>
-            <p>Laporan Rangkuman</p>
-            <p>Instagram</p>
-            <p>Facebook</p>
-            <p>Pengrekrutan</p>
-          </AccordionContent>
-        </AccordionItem>
+          return (
+            <div key={category.id}>
+              {/* Render the separator before a category if separatorBefore is true */}
+              {category.separatorBefore && <Separator className="my-3" />}
+
+              <AccordionItem
+                key={category.id}
+                value={category.id}
+                className="border-b-0"
+              >
+                <AccordionTrigger
+                  className={`${
+                    activeTab === category.id
+                      ? `bg-${category.color}-100 text-${category.color}-500`
+                      : ""
+                  }`}
+                >
+                  {/* Make this a full navigation link */}
+                  <Link href={`/admin/${category.id}`}>{category.title}</Link>
+                </AccordionTrigger>
+                <AccordionContent>
+                  {category.links.map((link) => {
+                    // Check if the current link corresponds to the active pathname
+                    const isLinkActive = pathname.includes(`/admin${link.url}`);
+
+                    return (
+                      <p key={link.url} className="w-full">
+                        <Link
+                          href={`/admin${link.url}`}
+                          onClick={() => setActiveTab(category.id)}
+                          className={`${
+                            isLinkActive ? "bg-slate-100 ml-2 rounded-xl" : ""
+                          } px-2 py-2 w-full`}
+                        >
+                          {link.title}
+                        </Link>
+                      </p>
+                    );
+                  })}
+                </AccordionContent>
+              </AccordionItem>
+            </div>
+          );
+        })}
       </Accordion>
     </aside>
   );

@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -9,7 +10,7 @@ export default function Home() {
         Kesejahteraan
       </h2>
       <div className="flex mt-10 flex-col space-y-5">
-        <Button>Admin Dashboard</Button>
+        <Link href={"/admin"}>Admin Dashboard</Link>
         <Button>Newborn App</Button>
         <Button>Riset & Argumen Kami</Button>
         <Button>Tentang Kami</Button>
