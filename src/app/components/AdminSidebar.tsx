@@ -69,7 +69,7 @@ export const AdminSidebar = () => {
                     activeTab === category.id
                       ? `bg-${category.color}-100 text-${category.color}-500`
                       : ""
-                  }`}
+                  } transition-colors`}
                 >
                   {/* Make this a full navigation link */}
                   <Link href={`/admin/${category.id}`}>{category.title}</Link>
@@ -77,7 +77,9 @@ export const AdminSidebar = () => {
                 <AccordionContent>
                   {category.links.map((link) => {
                     // Check if the current link corresponds to the active pathname
-                    const isLinkActive = pathname.includes(`/admin${link.url}`);
+                    const isLinkActive =
+                      pathname === `/admin${link.url}` ||
+                      pathname === `/admin${link.url}/`;
 
                     return (
                       <p key={link.url} className="w-full">
@@ -85,8 +87,8 @@ export const AdminSidebar = () => {
                           href={`/admin${link.url}`}
                           onClick={() => setActiveTab(category.id)}
                           className={`${
-                            isLinkActive ? "bg-slate-100 ml-2 rounded-xl" : ""
-                          } px-2 py-2 w-full`}
+                            isLinkActive ? `text-${category.color}-500` : ""
+                          } px-2 py-2 w-full transition-colors`}
                         >
                           {link.title}
                         </Link>

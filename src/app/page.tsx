@@ -11,9 +11,9 @@ export default function Home() {
       </h2>
       <div className="flex mt-10 flex-col space-y-5">
         <Link href={"/admin"}>Admin Dashboard</Link>
-        <Button>Newborn App</Button>
-        <Button>Riset & Argumen Kami</Button>
-        <Button>Tentang Kami</Button>
+        <Link href={"/newborn-app"}>Newborn App</Link>
+        <Link href={"/riset"}>Riset & Argumen Kami</Link>
+        <Link href={"/tentang"}>Tentang Kami</Link>
       </div>
     </main>
   );
