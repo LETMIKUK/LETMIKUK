@@ -69,7 +69,7 @@ export const AdminSidebar = () => {
                     activeTab === category.id
                       ? `bg-${category.color}-100 text-${category.color}-500`
                       : ""
-                  } transition-colors`}
+                  } transition-colors text-start`}
                 >
                   {/* Make this a full navigation link */}
                   <Link href={`/admin/${category.id}`}>{category.title}</Link>
