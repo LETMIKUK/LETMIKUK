@@ -1,4 +1,4 @@
-# LETMIKUK - Layanan Efektif Tanggap Malnutrisi dan Intervensi Kesehatan Untuk Kesejahteraan
+# LETMIKUK - Layanan Efektif untuk Tanggap Malnutrisi dan Intervensi Kesehatan Untuk Kesejahteraan
 
 ## Deskripsi Proyek
 
