@@ -21,7 +21,7 @@ export default function RootLayout({
         <AdminHeader />
         <main className="bg-slate-100 flex h-screen">
           <AdminSidebar />
-          {children}
+          <div className="p-6">{children}</div>
         </main>
       </body>
     </html>
