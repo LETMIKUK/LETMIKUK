@@ -1,4 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LETMIKUK - Layanan Efektif untuk Tanggap Malnutrisi dan Intervensi Kesehatan Untuk Kesejahteraan
+
+## Deskripsi Proyek
+
+LETMIKUK adalah _prototype_ untuk serangkaian layanan berbasis teknologi yang bertujuan untuk mengatasi masalah stunting dan kekurangan gizi di Indonesia. Proyek ini berfokus pada solusi berbasis AI **(Artificial Intelligence)** untuk membantu pemerintah, orang tua, serta lembaga pendidikan dan kesehatan dalam memantau pertumbuhan anak, memberikan rekomendasi nutrisi, dan menyelenggarakan program intervensi untuk mengurangi angka stunting di berbagai wilayah Indonesia.
+
+## Fitur Utama:
+
+- **Deteksi status stunting** berdasarkan data antropometri balita.
+- **Rekomendasi nutrisi** dan generasi rencana resep untuk memenuhi kebutuhan gizi anak-anak.
+- **Akses layanan bantuan pangan** untuk keluarga di daerah dengan tingkat stunting tinggi.
+- **Dashboard untuk pemerintah** guna melacak prevalensi stunting, mengelola program intervensi, serta koordinasi sumber daya.
+- **Edukasi berbasis AI** untuk meningkatkan pengetahuan orang tua dan anak dalam jangka panjang.
+
+## Struktur Layanan
+
+- **Aplikasi untuk Orang Tua**  
+  Memungkinkan orang tua memantau pertumbuhan anak di bawah usia dua tahun, memeriksa status gizi, serta mendapatkan rencana resep yang sesuai kebutuhan gizi anak.
+- **Aplikasi untuk Pemerintah dan Lembaga Kesehatan**  
+  Digunakan oleh akun-akun pemerintah yang terverifikasi untuk memantau status stunting di berbagai daerah, memberikan bantuan pangan, mengelola kamp intervensi, dan mengkoordinasikan sumber daya.
+- **Dashboard Admin**  
+  Digunakan oleh pemerintah untuk memonitor dan mengelola prevalensi stunting per provinsi, mengorganisasi proyek intervensi yang sedang berlangsung, serta merekrut relawan dan tenaga pendidik yang diperlukan.
+
+## Implementasi
+
+Proyek ini dikembangkan menggunakan Generative AI dan Machine Learning untuk mengidentifikasi status stunting, merancang rencana nutrisi, dan memberikan rekomendasi intervensi sesuai dengan situasi sosial-ekonomi setiap daerah.
+
+### Teknologi yang Digunakan:
+
+- **Next.js** sebagai framework utama untuk pengembangan web.
+- **Python Machine Learning** untuk deteksi stunting dan prediksi kebutuhan daerah.
+- **Generative AI (Meta-Llama)** untuk menghasilkan rencana nutrisi dan resep untuk orang tua.
+- **Sanity CMS** untuk mengelola konten yang dinamis dan data.
+<!-- - **Midtrans** sebagai sistem pembayaran untuk layanan tambahan yang memerlukan donasi atau pembelian makanan. -->
+
+## Tim LETMIKUK
+
+Kami adalah tim mahasiswa yang berdedikasi untuk menciptakan solusi inovatif bagi masalah stunting di Indonesia. Tim LETMIKUK terdiri dari tiga mahasiswa berusia 19 tahun dengan latar belakang pendidikan di bidang teknologi dan komputasi.
+
+- **Felix Colin Lianto**  
+  BTEC Higher National Diploma Computing | UniSadhuGuna College BSD
+
+- **Ryan Ferdinand Tobing**  
+  BTEC Higher National Diploma Computing | UniSadhuGuna College BSD
+
+- **Ahmad Syafiq Hartono**  
+  S1 Computer Science | BINUS Kemanggisan
+
+Bersama, kami berkomitmen untuk memanfaatkan teknologi mutakhir seperti AI dan Machine Learning untuk membantu mengurangi prevalensi stunting dan meningkatkan kesejahteraan anak-anak di Indonesia.
+
+## Kontak
+
+Untuk informasi lebih lanjut, silakan hubungi kami melalui email di letmikuk@gmail.com.
+
+<!-- This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
 
@@ -33,4 +87,4 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details. -->
