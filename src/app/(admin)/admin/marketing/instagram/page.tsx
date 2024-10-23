@@ -5,6 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { Zap } from "lucide-react";
+import Sparkle from "@/app/components/svg/Sparkle";
+import SparkleLarge from "@/app/components/svg/SparkleLarge";
+
 export default function Page() {
   const [_, convert, ref] = useToJpeg<HTMLDivElement>({
     quality: 0.8,
@@ -68,6 +71,9 @@ export default function Page() {
             </div>
           </div>
           <div className="flex flex-col space-y-3">
+            <Sparkle className="animate-spin" />
+            <SparkleLarge className="animate-spin" />
+
             <Button
               onClick={handleGenerateContent}
               iconPosition="start"
@@ -82,7 +88,6 @@ export default function Page() {
               onChange={(e) => setHeadingValue(e.target.value)}
             />
             <Typography title="Body" />
-
             <Input
               title="Body"
               value={bodyValue}
