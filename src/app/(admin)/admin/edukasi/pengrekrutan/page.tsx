@@ -304,6 +304,7 @@ export default function Page() {
         pageSize={pageSize}
         total={sheetData.length}
         onChange={handleChange}
+        
       />
     </div>
   );
