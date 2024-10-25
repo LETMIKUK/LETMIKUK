@@ -14,7 +14,11 @@ import {
 import Sparkle from "@/app/components/svg/Sparkle";
 import GradientAIBarsContainer from "@/app/components/GradientAIBarsContainer";
 import GradientText from "@/app/components/GradientText";
-// import { useStopwatch } from "react-use-precision-timer";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
 import { useRef } from "react";
 
 export default function Page() {
@@ -32,8 +36,14 @@ export default function Page() {
     },
   });
 
-  const [headingValue, setHeadingValue] = useState("");
-  const [bodyValue, setBodyValue] = useState("");
+  const [headingValue, setHeadingValue] = useState(
+    "Pentingnya ASI Eksklusif untuk Kesehatan Anak"
+  );
+  const [bodyValue, setBodyValue] = useState<string[]>([
+    "ASI eksklusif adalah pemberian ASI tanpa tambahan makanan atau minuman lain pada bayi selama 6 bulan pertama. Tahukah Bunda? ASI eksklusif sangat penting untuk kesehatan dan tumbuh kembang anak! ASI mengandung nutrisi lengkap yang dibutuhkan bayi, seperti protein, lemak, dan vitamin, yang mudah diserap tubuh si kecil. Selain itu, ASI membantu membangun sistem imun bayi, melindungi dari penyakit infeksi seperti diare dan pneumonia.",
+    "Manfaat ASI eksklusif juga berdampak jangka panjang. Anak yang mendapat ASI cenderung memiliki perkembangan otak lebih optimal dan risiko obesitas serta diabetes yang lebih rendah di masa depan. Untuk Bunda, menyusui juga memberikan manfaat kesehatan, seperti penurunan risiko kanker payudara dan ovarium.",
+    "Jadi, yuk dukung pemberian ASI eksklusif selama 6 bulan pertama demi masa depan yang lebih sehat bagi si kecil!",
+  ]);
   const [keywordValue, setKeywordValue] = useState("");
   const [isLoading, setIsLoading] = useState(false); // Loading state
 
@@ -72,6 +82,35 @@ export default function Page() {
     headingValue: "Apa itu Stunting?",
     bodyValue:
       "Stunting adalah kondisi di mana anak memiliki tinggi badan yang lebih pendek dari anak seusianya akibat kurang gizi. Hal ini dapat menghambat pertumbuhan fisik dan perkembangan kognitif. Dengan pemantauan dan intervensi gizi yang baik, kita bisa membantu anak-anak tumbuh sehat. Mari bersama-sama kita atasi stunting dan berikan masa depan yang lebih baik untuk generasi mendatang.",
+  };
+
+  const { TextArea } = Input;
+
+  const parseContent = (content: string) => {
+    // Regular expression to match Judul and Isi sections
+    const judulMatch = content.match(/Judul:\s*(.*)/);
+    const isiMatch = content.match(/Isi:\s*([\s\S]*)/);
+
+    // Extract Judul
+    const judul = judulMatch ? judulMatch[1].trim() : "";
+
+    // Extract Isi and split it into paragraphs based on newlines
+    const isi = isiMatch ? isiMatch[1].trim().split("\n\n") : [];
+
+    // Set the heading and body
+    setHeadingValue(judul);
+    setBodyValue(isi);
+  };
+
+  const contentPages = [headingValue, ...bodyValue];
+
+  // Display bodyValue as a string with paragraphs separated by newlines
+  const bodyValueDisplay = bodyValue.join("\n");
+
+  // Handler to update bodyValue as an array, based on user input
+  const handleBodyChange = (e: any) => {
+    const inputValue = e.target.value;
+    setBodyValue(inputValue.split("\n")); // Convert input string to array on change
   };
 
   const handleGenerateContent = async (prompt: string) => {
@@ -137,32 +176,79 @@ export default function Page() {
       <div className="p-5 border bg-white mt-3 rounded-lg">
         <h1>IG Post</h1>
         <div className="flex flex-row py-6 space-x-6">
-          <div className="aspect-square w-96 max-w-96 relative" ref={ref}>
-            <Image
-              alt="canva background template"
-              fill={true}
-              className="absolute z-0"
-              src={"/images/canva_templates/blue_food_love_pattern.png"}
-            />
-            <div className="absolute p-5 space-y-3 w-full flex flex-col justify-center items-center text-center top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2">
+          <div className="w-96 h-96 relative" ref={ref}>
+            <Carousel className="w-full h-full">
+              <CarouselContent className="w-full h-full flex">
+                {/* Heading slide */}
+                <CarouselItem className="flex flex-col items-center justify-center relative w-96 h-96">
+                  <Image
+                    alt="canva background template"
+                    src="/images/canva_templates/blue_food_love_pattern.png"
+                    width={384}
+                    height={384}
+                    className="z-0"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center p-5 text-center">
+                    <p className="text-2xl font-bold text-white">
+                      {headingValue}
+                    </p>
+                  </div>
+                </CarouselItem>
+                {/* Body slides */}
+                {bodyValue.map((paragraph, index) => (
+                  <CarouselItem
+                    key={index}
+                    className="flex flex-col items-center justify-center relative w-96 h-96"
+                  >
+                    <Image
+                      alt="canva background template"
+                      src="/images/canva_templates/blue_food_love_pattern.png"
+                      width={384}
+                      height={384}
+                      className="z-0"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center p-5">
+                      <p className="text-sm px-5 text-justify text-white">
+                        {paragraph}
+                      </p>
+                    </div>
+                  </CarouselItem>
+                ))}
+                {/* {contentPages.map((content, index) => (
+                  <CarouselItem
+                    key={index}
+                    className="flex flex-col items-center justify-center relative w-96 h-96"
+                  >
+                    <Image
+                      alt="canva background template"
+                      src="/images/canva_templates/blue_food_love_pattern.png"
+                      width={384} // Fixed 96x96 Tailwind size
+                      height={384}
+                      className="z-0"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center p-5 text-center">
+                      {index === 0 ? (
+                        <p className="text-2xl font-bold text-white">
+                          {content}
+                        </p>
+                      ) : (
+                        <p className="text-sm px-5 text-justify text-white">
+                          {content}
+                        </p>
+                      )}
+                    </div>
+                  </CarouselItem>
+                ))} */}
+              </CarouselContent>
+            </Carousel>
+            {/* <div className="absolute p-5 space-y-3 w-full flex flex-col justify-center items-center text-center top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2">
               <p className="text-2xl font-bold text-white" id="post-heading-1">
                 {headingValue}
               </p>
               <p className="text-sm text-justify text-white" id="post-body-1">
                 {bodyValue}
               </p>
-              {/* 
-              <Button>
-                <AlignHorizontalJustifyStart />{" "}
-              </Button>
-
-              <Button>
-                <AlignHorizontalJustifyCenter />{" "}
-              </Button>
-              <Button>
-                <AlignHorizontalJustifyEnd />{" "}
-              </Button> */}
-            </div>
+            </div> */}
           </div>
           <div className="flex flex-col space-y-3">
             {isLoading ? ( // Show loading segment if loading
@@ -204,10 +290,10 @@ export default function Page() {
               onChange={(e) => setHeadingValue(e.target.value)}
             />
             <Typography title="Body" />
-            <Input
+            <TextArea
               title="Body"
-              value={bodyValue}
-              onChange={(e) => setBodyValue(e.target.value)}
+              value={bodyValueDisplay}
+              onChange={handleBodyChange}
             />
             <Radio.Group
               // block

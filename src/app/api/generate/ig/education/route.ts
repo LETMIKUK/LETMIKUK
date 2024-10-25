@@ -104,14 +104,40 @@ import OpenAI from "openai";
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
+  const prompt = { body };
   try {
     const openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
 
+    console.log("openai object:", openai);
+
+    const models = openai.models.list();
+
+    console.log("openai models:", models);
+
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
-      messages: [],
+      messages: [
+        {
+          role: "system",
+          content: `Kamu adalah asisten AI profesional yang bertugas membuat konten Instagram tentang stunting dan kesehatan anak dalam Bahasa Indonesia.
+    ATURAN PENTING:
+    1. Selalu gunakan Bahasa Indonesia yang baik dan benar
+    2. Selalu berikan respons dalam format berikut:
+    Judul: {judul singkat dan menarik}
+    Isi: {isi konten informatif}
+    BATASAN KONTEN:
+    - Judul: maksimal 15 kata, menarik dan to the point
+    - Isi: maksimal 200 kata, informatif dan mudah dipahami
+    - Tone: informatif namun tetap ramah dan mudah dicerna
+    Pengguna akan memberikan kata kunci terkait stunting atau kesehatan anak, dan kamu harus mengembangkannya menjadi konten Instagram yang menarik sesuai format di atas.`,
+        },
+        {
+          role: "user",
+          content: `kata kunci: ${prompt}`,
+        },
+      ],
       temperature: 1,
       max_tokens: 2048,
       top_p: 1,
@@ -121,8 +147,15 @@ export async function POST(request: NextRequest) {
         type: "text",
       },
     });
-    const result = await body;
-    return NextResponse.json({ message: "OK", result }, { status: 201 });
+
+    const choice = response.choices[0].message;
+    console.log("response:", response);
+    console.log("response choices[0]:", choice);
+
+    return NextResponse.json(
+      { message: "OK", data: choice ? choice : "response error" },
+      { status: 201 }
+    );
   } catch (error) {
     return NextResponse.json({ message: "Error", error }, { status: 500 });
   }
