@@ -9,9 +9,6 @@ const nextConfig = {
       },
     ];
   },
-  httpTimeout: 10 * 60 * 1000, // 10 minutes
-  // Optional: Enable edge runtime
-  runtime: "edge",
 };
 
 export default nextConfig;
