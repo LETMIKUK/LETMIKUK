@@ -1,23 +1,36 @@
-const animationDuration = "1s";
+const animationDuration = "2s"; // Duration for gradient rotation and colour change
+const svgWidth = 63; // Width of the SVG
+const svgHeight = 62; // Height of the SVG
+const gradientColors = {
+  start: "#EC4899",
+  middle: "#84CC16",
+  end: "#0EA5E9",
+}; // Gradient colours
+const initialGradientAngle = 45; // Starting angle of the gradient
+const rotationAmount = 360; // Rotation angle amount
 
 const SparkleLarge = (props: any) => (
   <svg
-    width="63"
-    height="62"
+    width={svgWidth}
+    height={svgHeight}
     viewBox="0 0 63 62"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    style={{ animation: `rotateGradient ${animationDuration} linear infinite` }} // Animation for gradient rotation
+    style={{
+      animation: `rotateGradient ${animationDuration} linear infinite`,
+    }}
     {...props}
   >
     <style>
       {`
         @keyframes rotateGradient {
           0% {
-            transform: rotate(45deg);
+            transform: rotate(${initialGradientAngle}deg);
           }
           100% {
-            transform: rotate(405deg); /* Full 360° rotation + 45° starting angle */
+            transform: rotate(${
+              initialGradientAngle + rotationAmount
+            }deg); /* Full rotation + initial angle */
           }
         }
       `}
@@ -32,29 +45,29 @@ const SparkleLarge = (props: any) => (
         x1="0%"
         y1="0%"
         x2="100%"
-        y2="100%" // Rotating gradient set to 45° angle
+        y2="100%" // Gradient angle set to 45°
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0%" stopColor="#EC4899">
+        <stop offset="0%" stopColor={gradientColors.start}>
           <animate
             attributeName="stop-color"
-            values="#EC4899; #84CC16; #0EA5E9; #EC4899"
+            values={`${gradientColors.start}; ${gradientColors.middle}; ${gradientColors.end}; ${gradientColors.start}`}
             dur={animationDuration}
             repeatCount="indefinite"
           />
         </stop>
-        <stop offset="50%" stopColor="#84CC16">
+        <stop offset="50%" stopColor={gradientColors.middle}>
           <animate
             attributeName="stop-color"
-            values="#84CC16; #0EA5E9; #EC4899; #84CC16"
+            values={`${gradientColors.middle}; ${gradientColors.end}; ${gradientColors.start}; ${gradientColors.middle}`}
             dur={animationDuration}
             repeatCount="indefinite"
           />
         </stop>
-        <stop offset="100%" stopColor="#0EA5E9">
+        <stop offset="100%" stopColor={gradientColors.end}>
           <animate
             attributeName="stop-color"
-            values="#0EA5E9; #EC4899; #84CC16; #0EA5E9"
+            values={`${gradientColors.end}; ${gradientColors.start}; ${gradientColors.middle}; ${gradientColors.end}`}
             dur={animationDuration}
             repeatCount="indefinite"
           />
