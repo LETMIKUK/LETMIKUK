@@ -1,6 +1,6 @@
 "use client";
 import { useToPng, useToSvg, useToJpeg } from "@hugocxl/react-to-image";
-import { Breadcrumb, Button, Input, Radio, Typography } from "antd";
+import { Breadcrumb, Radio, Typography } from "antd";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -8,7 +8,8 @@ import {
   AlignHorizontalJustifyCenter,
   AlignHorizontalJustifyEnd,
   AlignHorizontalJustifyStart,
-  AlignHorizontalJustifyStartIcon,
+  Plus,
+  Trash,
   Zap,
 } from "lucide-react";
 import Sparkle from "@/app/components/svg/Sparkle";
@@ -20,6 +21,9 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import { useRef } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 export default function Page() {
   const [_, convert, ref] = useToJpeg<HTMLDivElement>({
@@ -36,14 +40,8 @@ export default function Page() {
     },
   });
 
-  const [headingValue, setHeadingValue] = useState(
-    "Pentingnya ASI Eksklusif untuk Kesehatan Anak"
-  );
-  const [bodyValue, setBodyValue] = useState<string[]>([
-    "ASI eksklusif adalah pemberian ASI tanpa tambahan makanan atau minuman lain pada bayi selama 6 bulan pertama. Tahukah Bunda? ASI eksklusif sangat penting untuk kesehatan dan tumbuh kembang anak! ASI mengandung nutrisi lengkap yang dibutuhkan bayi, seperti protein, lemak, dan vitamin, yang mudah diserap tubuh si kecil. Selain itu, ASI membantu membangun sistem imun bayi, melindungi dari penyakit infeksi seperti diare dan pneumonia.",
-    "Manfaat ASI eksklusif juga berdampak jangka panjang. Anak yang mendapat ASI cenderung memiliki perkembangan otak lebih optimal dan risiko obesitas serta diabetes yang lebih rendah di masa depan. Untuk Bunda, menyusui juga memberikan manfaat kesehatan, seperti penurunan risiko kanker payudara dan ovarium.",
-    "Jadi, yuk dukung pemberian ASI eksklusif selama 6 bulan pertama demi masa depan yang lebih sehat bagi si kecil!",
-  ]);
+  const [headingValue, setHeadingValue] = useState("");
+  const [bodyValue, setBodyValue] = useState<string[]>([""]);
   const [keywordValue, setKeywordValue] = useState("");
   const [isLoading, setIsLoading] = useState(false); // Loading state
 
@@ -51,6 +49,21 @@ export default function Page() {
   const secondsPassedRef = useRef(0);
   const intervalRef = useRef<any>(null);
   const timeDisplayRef = useRef<HTMLSpanElement>(null);
+
+  // Handle adding a new paragraph
+  const addParagraph = () => {
+    setBodyValue([...bodyValue, ""]);
+  };
+
+  // Handle deleting a specific paragraph
+  const deleteParagraph = (index: number) => {
+    setBodyValue(bodyValue.filter((_, i) => i !== index));
+  };
+
+  // Handle updating a specific paragraph
+  const updateParagraph = (index: number, newValue: string) => {
+    setBodyValue(bodyValue.map((value, i) => (i === index ? newValue : value)));
+  };
 
   function updateDisplay() {
     if (startTimeRef.current !== null && timeDisplayRef.current) {
@@ -84,9 +97,15 @@ export default function Page() {
       "Stunting adalah kondisi di mana anak memiliki tinggi badan yang lebih pendek dari anak seusianya akibat kurang gizi. Hal ini dapat menghambat pertumbuhan fisik dan perkembangan kognitif. Dengan pemantauan dan intervensi gizi yang baik, kita bisa membantu anak-anak tumbuh sehat. Mari bersama-sama kita atasi stunting dan berikan masa depan yang lebih baik untuk generasi mendatang.",
   };
 
-  const { TextArea } = Input;
-
   const parseContent = (content: string) => {
+    // Remove asterisks used for bolding
+    const cleanedContent = content
+      .replace(/\*\*/g, "") // Remove double asterisks
+      .replace(/[*_]/g, "") // Remove single asterisks and underscores
+      .replace(/[^\w\s.,?!]/g, "") // Remove emojis or special symbols
+      .replace(/\s{2,}/g, " ") // Replace multiple spaces with a single space
+      .replace(/\n{2,}/g, "\n"); // Replace multiple newlines with a single newline
+
     // Regular expression to match Judul and Isi sections
     const judulMatch = content.match(/Judul:\s*(.*)/);
     const isiMatch = content.match(/Isi:\s*([\s\S]*)/);
@@ -107,12 +126,6 @@ export default function Page() {
   // Display bodyValue as a string with paragraphs separated by newlines
   const bodyValueDisplay = bodyValue.join("\n");
 
-  // Handler to update bodyValue as an array, based on user input
-  const handleBodyChange = (e: any) => {
-    const inputValue = e.target.value;
-    setBodyValue(inputValue.split("\n")); // Convert input string to array on change
-  };
-
   const handleGenerateContent = async (prompt: string) => {
     setIsLoading(true);
     handleStart();
@@ -126,10 +139,6 @@ export default function Page() {
         body: JSON.stringify({
           prompt: prompt,
         }),
-        // Use Next.js specific options
-        next: {
-          revalidate: 0,
-        },
       });
 
       if (!generate.ok) {
@@ -141,8 +150,11 @@ export default function Page() {
       const response = await generate.json();
       console.log("Generation response:", response);
 
-      if (response.data && typeof response.data === "string") {
-        setBodyValue(response.data);
+      if (response.data) {
+        parseContent(response.data);
+      } else if (response.error) {
+        console.warn("Content generation issue:", response.error);
+        // Optionally display a message to the user or provide default content
       } else {
         console.warn("Unexpected response format:", response);
       }
@@ -169,11 +181,11 @@ export default function Page() {
             title: <Link href="/admin/marketing/instagram">Instagram</Link>,
           },
           {
-            title: "Buat post baru",
+            title: "Buat Postingan Baru",
           },
         ]}
       />
-      <div className="p-5 border bg-white mt-3 rounded-lg">
+      <div className="p-5 border w-full h-full block bg-white mt-3 rounded-lg">
         <h1>IG Post</h1>
         <div className="flex flex-row py-6 space-x-6">
           <div className="w-96 h-96 relative" ref={ref}>
@@ -250,7 +262,7 @@ export default function Page() {
               </p>
             </div> */}
           </div>
-          <div className="flex flex-col space-y-3">
+          <div className="flex flex-col w-full space-y-3">
             {isLoading ? ( // Show loading segment if loading
               <>
                 <div className="flex space-x-2">
@@ -270,51 +282,51 @@ export default function Page() {
                 </p>
               </div>
             ) : null}
-
+            <Label>Subtopik</Label>
             <Input
+              placeholder="contoh: asi ekslusif, 1000 hari pertama, dll"
               value={keywordValue}
               onChange={(e) => setKeywordValue(e.target.value)}
             />
             <Button
               disabled={!keywordValue || isLoading}
               onClick={() => handleGenerateContent(keywordValue)}
-              iconPosition="start"
-              shape="round"
-              icon={<Zap size={15} />}
+              // iconPosition="start"
+              // icon={<Zap size={15} />}
             >
-              Buat Konten
+              <Zap /> Buat Konten
             </Button>
-            <Typography title="Heading" />
+            <Label>Judul Postingan</Label>
+
             <Input
               value={headingValue}
               onChange={(e) => setHeadingValue(e.target.value)}
             />
-            <Typography title="Body" />
-            <TextArea
-              title="Body"
-              value={bodyValueDisplay}
-              onChange={handleBodyChange}
-            />
-            <Radio.Group
-              // block
-              optionType="button"
-              buttonStyle="solid"
-              options={[
-                {
-                  label: <AlignHorizontalJustifyCenter />,
-                  value: "start",
-                },
-                {
-                  label: <AlignHorizontalJustifyCenter />,
-                  value: "center",
-                },
-                {
-                  label: <AlignHorizontalJustifyEnd />,
-                  value: "end",
-                },
-              ]}
-              defaultValue="center"
-            />
+            <Label>Isi Postingan</Label>
+
+            {bodyValue.map((paragraph, index) => (
+              <div key={index} className="flex items-center space-x-2">
+                <Input
+                  type="text"
+                  value={paragraph}
+                  onChange={(e) => updateParagraph(index, e.target.value)}
+                  placeholder={`Paragraf ${index + 1}`}
+                />
+                <Button
+                  size={"icon"}
+                  variant={"ghost"}
+                  onClick={() => deleteParagraph(index)}
+                >
+                  <Trash />
+                </Button>
+              </div>
+            ))}
+
+            {/* Add new paragraph button */}
+            <Button type="button" onClick={addParagraph}>
+              <Plus />
+              Tambah Paragraf
+            </Button>
           </div>
         </div>
 
