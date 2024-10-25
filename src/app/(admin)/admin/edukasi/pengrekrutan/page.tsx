@@ -1,16 +1,13 @@
-"use client"; // Specify this as a Client Component
+"use client";
 
 import React, { useEffect, useState } from "react";
-import { Table, Pagination } from "antd"; // Import Ant Design Table and Pagination component
+import { Table, Pagination } from "antd";
 import TypographyTitle from "antd/lib/typography/Title";
-import dynamic from 'next/dynamic'; // Use dynamic import for ApexCharts
-import { ApexOptions } from 'apexcharts'; // Import ApexOptions for type definitions
-import { LeftOutlined, RightOutlined } from '@ant-design/icons'; // Import icons for switching charts
+import dynamic from 'next/dynamic';
+import { ApexOptions } from 'apexcharts';
 
-// Dynamic import for ApexCharts to prevent SSR issues
 const ApexCharts = dynamic(() => import('react-apexcharts'), { ssr: false });
 
-// Define types for the data structure
 interface TableColumn {
   title: string;
   dataIndex: string;
@@ -19,47 +16,29 @@ interface TableColumn {
 
 interface TableData {
   key: number;
-  [key: string]: string | number; // Dynamic keys for table columns
+  [key: string]: string | number;
 }
 
-// Function to generate random mock data
 function generateMockData() {
   const mockData = [];
   const randomNames = ["John Doe", "Jane Smith", "Alice Brown", "Bob Johnson", "Chandra Gupta", "Samuel Santoso", "Sari Kurniawan", "Rafael Sibolga"];
   const randomAges = [22, 25, 30, 35];
   const randomEduBackgrounds = ["SD", "SMP", "SMA", "Diploma", "S1", "S2"];
   const randomInstitutions = ["Universitas A", "Universitas B", "Sekolah Tinggi C", "Institut D"];
-  const randomPositions = [
-    "Spesialis Kesehatan", 
-    "Penulis Konten Edukasi", 
-    "Pembuat Strategi Konten Edukasi", 
-    "Pencerita Dongeng Edukasi"
-  ];
-  
-  const randomReasons = [
-    "Saya menyukai pemecahan masalah",
-    "Saya memiliki minat dalam teknologi",
-    "Saya menikmati bekerja dalam tim",
-    "Saya ingin menciptakan produk yang berdampak"
-  ];
-  
-  const randomPortfolios = [
-    "Portofolio A", 
-    "Portofolio B", 
-    "Portofolio C", 
-    "Portofolio D"
-  ];
+  const randomPositions = ["Spesialis Kesehatan", "Penulis Konten Edukasi", "Pembuat Strategi Konten Edukasi", "Pencerita Dongeng Edukasi"];
+  const randomReasons = ["Saya menyukai pemecahan masalah", "Saya memiliki minat dalam teknologi", "Saya menikmati bekerja dalam tim", "Saya ingin menciptakan produk yang berdampak"];
+  const randomPortfolios = ["Portofolio A", "Portofolio B", "Portofolio C", "Portofolio D"];
+  const randomIslands = ["Sumatra", "Java", "Bali", "Kalimantan", "Sulawesi", "Nusa Tenggara", "Papua"];
 
-  // Track last selected options to avoid duplicates
   let lastName = "";
-  let lastAge: number | null = null;
+  let lastAge = 0;
   let lastEduBackground = "";
   let lastInstitution = "";
   let lastPosition = "";
   let lastReason = "";
   let lastPortfolio = "";
+  let lastIsland = "";
 
-  // Generate 50 rows of random data
   for (let i = 0; i < 50; i++) {
     const name = getRandomUniqueItem(randomNames, lastName);
     const age = getRandomUniqueItem(randomAges, lastAge);
@@ -68,19 +47,20 @@ function generateMockData() {
     const position = getRandomUniqueItem(randomPositions, lastPosition);
     const reason = getRandomUniqueItem(randomReasons, lastReason);
     const portfolio = getRandomUniqueItem(randomPortfolios, lastPortfolio);
+    const island = getRandomUniqueItem(randomIslands, lastIsland);
     
     mockData.push({
       key: i,
       col0: name,
       col1: age,
       col2: eduBackground,
-      col3: institution,
-      col4: position,
-      col5: reason,
-      col6: portfolio
+      col3: island, // New column for the island of origin
+      col4: institution,
+      col5: position,
+      col6: reason,
+      col7: portfolio
     });
 
-    // Update last selected items
     lastName = name;
     lastAge = age;
     lastEduBackground = eduBackground;
@@ -88,13 +68,13 @@ function generateMockData() {
     lastPosition = position;
     lastReason = reason;
     lastPortfolio = portfolio;
+    lastIsland = island;
   }
 
   return mockData;
 }
 
-// Helper function to get a random unique item
-function getRandomUniqueItem(array: any[], lastValue: any) {
+function getRandomUniqueItem<T>(array: T[], lastValue: T): T {
   let newValue;
   do {
     newValue = array[Math.floor(Math.random() * array.length)];
@@ -105,207 +85,165 @@ function getRandomUniqueItem(array: any[], lastValue: any) {
 export default function Page() {
   const [sheetData, setSheetData] = useState<TableData[]>([]);
   const [columns, setColumns] = useState<TableColumn[]>([]);
-  const [currentPage, setCurrentPage] = useState(1); // State for the current page
-  const pageSize = 5; // Rows per page
-  const [eduBackgroundCounts, setEduBackgroundCounts] = useState<{ [key: string]: number }>({}); // For pie chart data
-  const [ageCounts, setAgeCounts] = useState<{ [key: number]: number }>({}); // For bar chart data
-  const [chartType, setChartType] = useState('pie'); // To switch between charts
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
+  const [eduBackgroundCounts, setEduBackgroundCounts] = useState<{ [key: string]: number }>({});
+  const [ageCounts, setAgeCounts] = useState<{ [key: number]: number }>({});
+  const [islandCounts, setIslandCounts] = useState<{ [key: string]: number }>({});
 
   useEffect(() => {
-    // Define desired headers
     const desiredHeaders = [
       "(E) Nama Lengkap:",
       "(E) Umur:",
       "(E) Latar Belakang Edukasi:",
+      "(E) Pulau Asal:", // New header for island of origin
       "(E) Institusi Edukasi Terakhir:",
       "(E) Posisi Yang Diinginkan:",
       "(E) Alasan",
       "(E) Portofolio"
     ];
 
-    // Set up table columns
     const columns: TableColumn[] = desiredHeaders.map((header, index) => ({
       title: header,
       dataIndex: `col${index}`,
       key: `col${index}`,
     }));
 
-    // Generate mock data
     const tableData = generateMockData();
 
-    // Count occurrences of each education background for pie chart
     const eduBackgroundCounts = tableData.reduce((acc: { [key: string]: number }, item) => {
-      const eduBackground = item.col2 as string; // Explicitly cast to string
+      const eduBackground = item.col2 as string;
       acc[eduBackground] = acc[eduBackground] ? acc[eduBackground] + 1 : 1;
       return acc;
     }, {});
 
-    // Count occurrences of each age for bar chart
     const ageCounts = tableData.reduce((acc: { [key: number]: number }, item) => {
-      const age = item.col1 as number; // Explicitly cast to number
+      const age = item.col1 as number;
       acc[age] = acc[age] ? acc[age] + 1 : 1;
       return acc;
     }, {});
 
-    // Set columns and data
+    const islandCounts = tableData.reduce((acc: { [key: string]: number }, item) => {
+      const island = item.col3 as string;
+      acc[island] = acc[island] ? acc[island] + 1 : 1;
+      return acc;
+    }, {});
+
     setColumns(columns);
     setSheetData(tableData);
     setEduBackgroundCounts(eduBackgroundCounts);
     setAgeCounts(ageCounts);
+    setIslandCounts(islandCounts);
   }, []);
 
-  // Calculate the current data to be displayed
   const currentData = sheetData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
-  // Handle page change
   const handleChange = (page: number) => {
     setCurrentPage(page);
   };
 
-  // Prepare data for the pie chart
-  const pieChartLabels = Object.keys(eduBackgroundCounts);
-  const pieChartData = Object.values(eduBackgroundCounts);
+  const pieChartLabelsEdu = Object.keys(eduBackgroundCounts);
+  const pieChartDataEdu = Object.values(eduBackgroundCounts);
 
-  // Prepare data for the bar chart
+  const pieChartLabelsIsland = Object.keys(islandCounts);
+  const pieChartDataIsland = Object.values(islandCounts);
+
   const barChartLabels = Object.keys(ageCounts);
   const barChartData = Object.values(ageCounts);
 
-  // Handle chart switching
-  const handleSwitchChart = (direction: string) => {
-    if (direction === 'left') {
-      setChartType(chartType === 'pie' ? 'bar' : 'pie');
-    } else if (direction === 'right') {
-      setChartType(chartType === 'pie' ? 'bar' : 'pie');
-    }
-  };
-
   return (
-    <div style={{ padding: '5rem' }}> {/* Apply padding to the whole container div */}
+    <div style={{ padding: '5rem', backgroundColor: '#f5f5f5', minHeight: '100vh' }}> {/* Set background color and minimum height */}
       <TypographyTitle>Rekrutmen Divisi Edukasi</TypographyTitle>
-      <p style={{ paddingBottom: '5rem' }}>Data Grafik</p>
+      <p style={{ paddingBottom: '1rem' }}>Data Grafik</p>
 
-      {/* Switchable charts with arrows */}
-      <div style={{ width: '40%', margin: '0 auto', paddingBottom: '2rem', position: 'relative' }}>
-        {/* Left arrow for chart switch */}
-        <LeftOutlined 
-          style={{ position: 'absolute', top: '50%', left: '-2rem', cursor: 'pointer' }} 
-          onClick={() => handleSwitchChart('left')} 
-        />
-
-        {/* Chart rendering based on chartType */}
-        {chartType === 'pie' ? (
+      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', paddingBottom: '2rem' }}>
+        <div style={{ width: '48%', height: '500px', border: '1px solid #d9d9d9', borderRadius: '8px', padding: '1rem', overflow: 'hidden' }}>
+          <h3 style={{ textAlign: 'center' }}>Latar Belakang Edukasi</h3>
           <ApexCharts 
             type="pie" 
-            series={pieChartData as number[]} // Explicitly cast to number[]
+            series={pieChartDataEdu as number[]} 
             options={{
-              labels: pieChartLabels,
-              chart: {
-                width: '100%', // Full width by default
-              },
-              responsive: [
-                {
-                  breakpoint: 1200, // On larger screens (maximized)
-                  options: {
-                    chart: {
-                      width: '40%', // 40% of container width
+              labels: pieChartLabelsEdu,
+              chart: { width: '100%', height: '100%' },
+              plotOptions: {
+                pie: {
+                  donut: {
+                    size: '50%', // Adjust the donut size to make it smaller
+                    labels: {
+                      show: false, // Hide labels
                     },
                   },
                 },
-                {
-                  breakpoint: 768, // For smaller tablets and phones
-                  options: {
-                    chart: {
-                      width: '100%', // Full width for smaller screens
-                    },
-                    legend: {
-                      position: 'bottom'
-                    }
-                  }
-                },
-                {
-                  breakpoint: 480, // Mobile view
-                  options: {
-                    chart: {
-                      width: 300 // Fixed width for very small screens
-                    },
-                    legend: {
-                      position: 'bottom'
-                    }
-                  }
-                }
+              },
+              tooltip: { enabled: false }, // Disable tooltip
+              responsive: [
+                { breakpoint: 768, options: { chart: { width: '100%' }, legend: { position: 'bottom' } } },
+                { breakpoint: 480, options: { chart: { width: '100%' }, legend: { position: 'bottom' } } }
               ]
-            } as ApexOptions} // Cast options to ApexOptions
+            } as ApexOptions}
           />
-        ) : (
+        </div>
+
+        <div style={{ width: '48%', height: '500px', border: '1px solid #d9d9d9', borderRadius: '8px', padding: '1rem', overflow: 'hidden' }}>
+          <h3 style={{ textAlign: 'center' }}>Distribusi Umur</h3>
           <ApexCharts 
             type="bar" 
-            series={[{ data: barChartData as number[] }]} // Explicitly cast to number[]
+            series={[{ data: barChartData as number[] }]} 
             options={{
-              xaxis: {
-                categories: barChartLabels,
-              },
-              chart: {
-                type: 'bar',
-                width: '100%', // Full width by default
-              },
+              xaxis: { categories: barChartLabels },
+              chart: { type: 'bar', width: '100%', height: '100%' },
               responsive: [
-                {
-                  breakpoint: 1200, // On larger screens (maximized)
-                  options: {
-                    chart: {
-                      width: '40%', // 40% of container width
+                { breakpoint: 768, options: { chart: { width: '100%' }, legend: { position: 'bottom' } } },
+                { breakpoint: 480, options: { chart: { width: '100%' }, legend: { position: 'bottom' } } }
+              ]
+            } as ApexOptions}
+          />
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', paddingBottom: '2rem' }}>
+        <div style={{ width: '48%', height: '500px', border: '1px solid #d9d9d9', borderRadius: '8px', padding: '1rem', overflow: 'hidden' }}>
+          <h3 style={{ textAlign: 'center' }}>Pulau Asal</h3>
+          <ApexCharts 
+            type="pie" 
+            series={pieChartDataIsland as number[]} 
+            options={{
+              labels: pieChartLabelsIsland,
+              chart: { width: '100%', height: '100%' },
+              plotOptions: {
+                pie: {
+                  donut: {
+                    size: '50%', // Adjust the donut size to make it smaller
+                    labels: {
+                      show: false, // Hide labels
                     },
                   },
                 },
-                {
-                  breakpoint: 768, // For smaller tablets and phones
-                  options: {
-                    chart: {
-                      width: '100%', // Full width for smaller screens
-                    },
-                    legend: {
-                      position: 'bottom'
-                    }
-                  }
-                },
-                {
-                  breakpoint: 480, // Mobile view
-                  options: {
-                    chart: {
-                      width: 300 // Fixed width for very small screens
-                    },
-                    legend: {
-                      position: 'bottom'
-                    }
-                  }
-                }
+              },
+              tooltip: { enabled: false }, // Disable tooltip
+              responsive: [
+                { breakpoint: 768, options: { chart: { width: '100%' }, legend: { position: 'bottom' } } },
+                { breakpoint: 480, options: { chart: { width: '100%' }, legend: { position: 'bottom' } } }
               ]
-            } as ApexOptions} // Cast options to ApexOptions
+            } as ApexOptions}
           />
-        )}
-
-        {/* Right arrow for chart switch */}
-        <RightOutlined 
-          style={{ position: 'absolute', top: '50%', right: '-2rem', cursor: 'pointer' }} 
-          onClick={() => handleSwitchChart('right')} 
-        />
+        </div>
       </div>
-      <p>Data Tabel</p>
-      {/* Table to display data */}
-      <Table 
-        columns={columns} 
-        dataSource={currentData} 
-        pagination={false} // Disable built-in pagination
+      <p style={{ paddingBottom: '1rem' }}>Data Grafik</p>
+      <div style={{ paddingBottom: '10rem' }}>
+      <Table
+        pagination={{
+          current: currentPage,
+          pageSize: pageSize,
+          onChange: handleChange,
+          total: sheetData.length,
+        }}
+        dataSource={currentData}
+        columns={columns}
+        bordered
+        style={{ marginTop: '20px' }}
       />
-
-      {/* Custom Pagination component */}
-      <Pagination
-        current={currentPage}
-        pageSize={pageSize}
-        total={sheetData.length}
-        onChange={handleChange}
-        
-      />
+    </div>
     </div>
   );
 }
