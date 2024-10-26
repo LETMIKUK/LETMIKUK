@@ -1,6 +1,6 @@
 import React from "react";
 
-const GradientText = () => {
+const GradientText = ({ text }: { text: string }) => {
   // Styles for the gradient text
   const gradientStyle = {
     background:
@@ -28,7 +28,7 @@ const GradientText = () => {
       <style>{keyframes}</style>
       <p className="font-light" style={gradientStyle}>
         {/* Please let us cook 🙏 */}
-        Membuat konten...
+        {text}
       </p>
     </>
   );

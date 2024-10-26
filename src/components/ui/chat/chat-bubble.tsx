@@ -7,23 +7,25 @@ import { Button, ButtonProps } from "../button";
 
 // ChatBubble
 const chatBubbleVariant = cva(
-  "flex gap-2 max-w-[60%] items-end relative group",
+  "flex flex-col gap-2 max-w-[60%] items-end relative group",
   {
     variants: {
       variant: {
-        received: "self-start",
-        sent: "self-end flex-row-reverse",
+        // received: "self-start",
+        // sent: "self-end",
+        received: "items-start",
+        sent: "items-end",
       },
       layout: {
         default: "",
-        ai: "max-w-full w-full items-center",
+        ai: "max-w-full w-full",
       },
     },
     defaultVariants: {
       variant: "received",
       layout: "default",
     },
-  },
+  }
 );
 
 interface ChatBubbleProps
@@ -35,7 +37,7 @@ const ChatBubble = React.forwardRef<HTMLDivElement, ChatBubbleProps>(
     <div
       className={cn(
         chatBubbleVariant({ variant, layout, className }),
-        "relative group",
+        "relative group"
       )}
       ref={ref}
       {...props}
@@ -46,10 +48,10 @@ const ChatBubble = React.forwardRef<HTMLDivElement, ChatBubbleProps>(
               variant,
               layout,
             } as React.ComponentProps<typeof child.type>)
-          : child,
+          : child
       )}
     </div>
-  ),
+  )
 );
 ChatBubble.displayName = "ChatBubble";
 
@@ -102,12 +104,12 @@ const ChatBubbleMessage = React.forwardRef<
 >(
   (
     { className, variant, layout, isLoading = false, children, ...props },
-    ref,
+    ref
   ) => (
     <div
       className={cn(
         chatBubbleMessageVariants({ variant, layout, className }),
-        "break-words max-w-full whitespace-pre-wrap",
+        "break-words max-w-full whitespace-pre-wrap"
       )}
       ref={ref}
       {...props}
@@ -120,7 +122,7 @@ const ChatBubbleMessage = React.forwardRef<
         children
       )}
     </div>
-  ),
+  )
 );
 ChatBubbleMessage.displayName = "ChatBubbleMessage";
 
@@ -179,9 +181,9 @@ const ChatBubbleActionWrapper = React.forwardRef<
     className={cn(
       "absolute top-1/2 -translate-y-1/2 flex opacity-0 group-hover:opacity-100 transition-opacity duration-200",
       variant === "sent"
-        ? "-left-1 -translate-x-full flex-row-reverse"
+        ? "-left-1 -translate-x-full"
         : "-right-1 translate-x-full",
-      className,
+      className
     )}
     {...props}
   >
