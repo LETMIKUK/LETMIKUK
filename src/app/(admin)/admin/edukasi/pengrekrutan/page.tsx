@@ -23,7 +23,7 @@ function generateMockData() {
   const mockData = [];
   const randomNames = ["John Doe", "Jane Smith", "Alice Brown", "Bob Johnson", "Chandra Gupta", "Samuel Santoso", "Sari Kurniawan", "Rafael Sibolga"];
   const randomAges = [22, 25, 30, 35];
-  const randomEduBackgrounds = ["SD", "SMP", "SMA", "Diploma", "S1", "S2"];
+  const randomEduBackgrounds = ["SD", "SMP", "SMA", "S1", "S2", "S3"];
   const randomInstitutions = ["Universitas A", "Universitas B", "Sekolah Tinggi C", "Institut D"];
   const randomPositions = ["Spesialis Kesehatan", "Penulis Konten Edukasi", "Pembuat Strategi Konten Edukasi", "Pencerita Dongeng Edukasi"];
   const randomReasons = ["Saya menyukai pemecahan masalah", "Saya memiliki minat dalam teknologi", "Saya menikmati bekerja dalam tim", "Saya ingin menciptakan produk yang berdampak"];
@@ -54,7 +54,7 @@ function generateMockData() {
       col0: name,
       col1: age,
       col2: eduBackground,
-      col3: island, // New column for the island of origin
+      col3: island,
       col4: institution,
       col5: position,
       col6: reason,
@@ -90,13 +90,14 @@ export default function Page() {
   const [eduBackgroundCounts, setEduBackgroundCounts] = useState<{ [key: string]: number }>({});
   const [ageCounts, setAgeCounts] = useState<{ [key: number]: number }>({});
   const [islandCounts, setIslandCounts] = useState<{ [key: string]: number }>({});
+  const [positionCounts, setPositionCounts] = useState<{ [key: string]: number }>({});
 
   useEffect(() => {
     const desiredHeaders = [
       "(E) Nama Lengkap:",
       "(E) Umur:",
       "(E) Latar Belakang Edukasi:",
-      "(E) Pulau Asal:", // New header for island of origin
+      "(E) Pulau Asal:",
       "(E) Institusi Edukasi Terakhir:",
       "(E) Posisi Yang Diinginkan:",
       "(E) Alasan",
@@ -129,11 +130,18 @@ export default function Page() {
       return acc;
     }, {});
 
+    const positionCounts = tableData.reduce((acc: { [key: string]: number }, item) => {
+      const position = item.col5 as string;
+      acc[position] = acc[position] ? acc[position] + 1 : 1;
+      return acc;
+    }, {});
+
     setColumns(columns);
     setSheetData(tableData);
     setEduBackgroundCounts(eduBackgroundCounts);
     setAgeCounts(ageCounts);
     setIslandCounts(islandCounts);
+    setPositionCounts(positionCounts);
   }, []);
 
   const currentData = sheetData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -142,40 +150,47 @@ export default function Page() {
     setCurrentPage(page);
   };
 
-  const pieChartLabelsEdu = Object.keys(eduBackgroundCounts);
-  const pieChartDataEdu = Object.values(eduBackgroundCounts);
+  // Define the fixed order for education backgrounds
+  const educationOrder = ["SD", "SMP", "SMA", "S1", "S2", "S3"];
+  const sortedEduBackgroundCounts = educationOrder.map(label => eduBackgroundCounts[label] || 0);
 
-  const pieChartLabelsIsland = Object.keys(islandCounts);
-  const pieChartDataIsland = Object.values(islandCounts);
+  const pieChartLabelsAge = Object.keys(ageCounts);
+  const pieChartDataAge = Object.values(ageCounts);
 
-  const barChartLabels = Object.keys(ageCounts);
-  const barChartData = Object.values(ageCounts);
+  const barChartLabelsEdu = educationOrder;
+  const barChartDataEdu = sortedEduBackgroundCounts;
+
+  const barChartLabelsIsland = Object.keys(islandCounts);
+  const barChartDataIsland = Object.values(islandCounts);
+
+  const pieChartLabelsPosition = Object.keys(positionCounts);
+  const pieChartDataPosition = Object.values(positionCounts);
 
   return (
-    <div style={{ padding: '5rem', backgroundColor: '#f5f5f5', minHeight: '100vh' }}> {/* Set background color and minimum height */}
+    <div style={{ padding: '5rem', backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
       <TypographyTitle>Rekrutmen Divisi Edukasi</TypographyTitle>
       <p style={{ paddingBottom: '1rem' }}>Data Grafik</p>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', paddingBottom: '2rem' }}>
         <div style={{ width: '48%', height: '500px', border: '1px solid #d9d9d9', borderRadius: '8px', padding: '1rem', overflow: 'hidden' }}>
-          <h3 style={{ textAlign: 'center' }}>Latar Belakang Edukasi</h3>
+          <h3 style={{ textAlign: 'center' }}>Distribusi Umur</h3>
           <ApexCharts 
             type="pie" 
-            series={pieChartDataEdu as number[]} 
+            series={pieChartDataAge as number[]} 
             options={{
-              labels: pieChartLabelsEdu,
+              labels: pieChartLabelsAge,
               chart: { width: '100%', height: '100%' },
               plotOptions: {
                 pie: {
                   donut: {
-                    size: '50%', // Adjust the donut size to make it smaller
+                    size: '50%',
                     labels: {
-                      show: false, // Hide labels
+                      show: false,
                     },
                   },
                 },
               },
-              tooltip: { enabled: false }, // Disable tooltip
+              tooltip: { enabled: false },
               responsive: [
                 { breakpoint: 768, options: { chart: { width: '100%' }, legend: { position: 'bottom' } } },
                 { breakpoint: 480, options: { chart: { width: '100%' }, legend: { position: 'bottom' } } }
@@ -185,13 +200,13 @@ export default function Page() {
         </div>
 
         <div style={{ width: '48%', height: '500px', border: '1px solid #d9d9d9', borderRadius: '8px', padding: '1rem', overflow: 'hidden' }}>
-          <h3 style={{ textAlign: 'center' }}>Distribusi Umur</h3>
+          <h3 style={{ textAlign: 'center' }}>Latar Belakang Edukasi</h3>
           <ApexCharts 
             type="bar" 
-            series={[{ data: barChartData as number[] }]} 
+            series={[{ name: "Jumlah", data: barChartDataEdu }]} 
             options={{
-              xaxis: { categories: barChartLabels },
-              chart: { type: 'bar', width: '100%', height: '100%' },
+              xaxis: { categories: barChartLabelsEdu },
+              chart: { width: '100%', height: '100%' },
               responsive: [
                 { breakpoint: 768, options: { chart: { width: '100%' }, legend: { position: 'bottom' } } },
                 { breakpoint: 480, options: { chart: { width: '100%' }, legend: { position: 'bottom' } } }
@@ -205,22 +220,27 @@ export default function Page() {
         <div style={{ width: '48%', height: '500px', border: '1px solid #d9d9d9', borderRadius: '8px', padding: '1rem', overflow: 'hidden' }}>
           <h3 style={{ textAlign: 'center' }}>Pulau Asal</h3>
           <ApexCharts 
-            type="pie" 
-            series={pieChartDataIsland as number[]} 
+            type="bar" 
+            series={[{ name: "Jumlah", data: barChartDataIsland }]} 
             options={{
-              labels: pieChartLabelsIsland,
+              xaxis: { categories: barChartLabelsIsland },
               chart: { width: '100%', height: '100%' },
-              plotOptions: {
-                pie: {
-                  donut: {
-                    size: '50%', // Adjust the donut size to make it smaller
-                    labels: {
-                      show: false, // Hide labels
-                    },
-                  },
-                },
-              },
-              tooltip: { enabled: false }, // Disable tooltip
+              responsive: [
+                { breakpoint: 768, options: { chart: { width: '100%' }, legend: { position: 'bottom' } } },
+                { breakpoint: 480, options: { chart: { width: '100%' }, legend: { position: 'bottom' } } }
+              ]
+            } as ApexOptions}
+          />
+        </div>
+
+        <div style={{ width: '48%', height: '500px', border: '1px solid #d9d9d9', borderRadius: '8px', padding: '1rem', overflow: 'hidden' }}>
+          <h3 style={{ textAlign: 'center' }}>Posisi Yang Diinginkan</h3>
+          <ApexCharts 
+            type="pie" 
+            series={pieChartDataPosition as number[]} 
+            options={{
+              labels: pieChartLabelsPosition,
+              chart: { width: '100%', height: '100%' },
               responsive: [
                 { breakpoint: 768, options: { chart: { width: '100%' }, legend: { position: 'bottom' } } },
                 { breakpoint: 480, options: { chart: { width: '100%' }, legend: { position: 'bottom' } } }
@@ -229,21 +249,9 @@ export default function Page() {
           />
         </div>
       </div>
-      <p style={{ paddingBottom: '1rem' }}>Data Grafik</p>
-      <div style={{ paddingBottom: '10rem' }}>
-      <Table
-        pagination={{
-          current: currentPage,
-          pageSize: pageSize,
-          onChange: handleChange,
-          total: sheetData.length,
-        }}
-        dataSource={currentData}
-        columns={columns}
-        bordered
-        style={{ marginTop: '20px' }}
-      />
-    </div>
+
+      <Table columns={columns} dataSource={currentData} pagination={false} />
+      <Pagination current={currentPage} pageSize={pageSize} total={sheetData.length} onChange={handleChange} />
     </div>
   );
 }
