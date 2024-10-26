@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function Home() {
   return (
     <main className="min-h-screen justify-center items-center flex flex-col">
-      <h1 className="text-6xl font-bold">L.E.T.M.I.K.U.K</h1>
+      <h1 className="text-6xl font-bold">LETMIKUK</h1>
       <h2>
         Layanan Efektif untuk Tanggap Malnutrisi dan Intervensi Kesehatan Untuk
         Kesejahteraan
