@@ -12,7 +12,7 @@ import { ChatInput } from "@/components/ui/chat/chat-input";
 import { ChatMessageList } from "@/components/ui/chat/chat-message-list";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { BotMessageSquare, MessageCircle, Send } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Markdown from "react-markdown";
 
 export default function Page() {
@@ -94,6 +94,14 @@ Semoga rencana makan ini bermanfaat untuk anak Anda!`,
   ]);
   const [loading, setLoading] = useState(false);
 
+  // Ref for the ChatMessageList to scroll
+  const messagesEndRef = useRef<null | HTMLDivElement>(null);
+
+  // Scroll to bottom when new messages or loading state changes
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, loading]);
+
   const handleSendMessage = async () => {
     if (!input || loading) return; // Prevent sending if loading or input is empty
 
@@ -104,31 +112,46 @@ Semoga rencana makan ini bermanfaat untuk anak Anda!`,
     setLoading(true); // Set loading state
 
     try {
-      const response = await fetch("/api/generate/app/nutrition", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ prompt: input }),
-      });
-
-      const data = await response.json();
-
-      if (data.error) {
-        throw new Error(data.error);
-      }
-
-      // Add the AI response to the list
-      const aiMessage = {
-        sender: "ai",
-        text: data.data,
-      };
-      setMessages((prev) => [...prev, aiMessage]);
-    } catch (error) {
-      console.error("Error fetching AI response:", error);
+      setTimeout(() => {
+        setMessages((prev: any) => [
+          ...prev,
+          {
+            sender: "ai",
+            text: "Ini adalah balasan AI berdasarkan masukan Anda.",
+          },
+        ]);
+      }, 5000); // simulate response delay
     } finally {
-      setLoading(false); // Reset loading state
+      setLoading(false);
     }
+    // Mock AI response after a delay (replace with actual API call)
+
+    // try {
+    //   const response = await fetch("/api/generate/app/nutrition", {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify({ prompt: input }),
+    //   });
+
+    //   const data = await response.json();
+
+    //   if (data.error) {
+    //     throw new Error(data.error);
+    //   }
+
+    //   // Add the AI response to the list
+    //   const aiMessage = {
+    //     sender: "ai",
+    //     text: data.data,
+    //   };
+    //   setMessages((prev) => [...prev, aiMessage]);
+    // } catch (error) {
+    //   console.error("Error fetching AI response:", error);
+    // } finally {
+    //   setLoading(false); // Reset loading state
+    // }
   };
   //   w-0 w-auto
   return (
@@ -157,7 +180,7 @@ Semoga rencana makan ini bermanfaat untuk anak Anda!`,
             )}
 
             <ChatBubbleMessage
-              className={`${message.sender === "ai" ? "" : "bg-secondary rounded-lg"}`}
+              className={`${message.sender === "ai" ? "" : "bg-secondary ml-2 rounded-lg"}`}
             >
               {message.sender === "ai" &&
               loading &&
@@ -175,6 +198,7 @@ Semoga rencana makan ini bermanfaat untuk anak Anda!`,
             </ChatBubbleMessage>
           </ChatBubble>
         ))}
+        <div ref={messagesEndRef} />
       </ChatMessageList>
       <div className="sticky flex space-x-1 transition-all duration-300 items-center justify-center bottom-0 w-full bg-background z-10 p-2 shadow-md">
         <ChatInput
