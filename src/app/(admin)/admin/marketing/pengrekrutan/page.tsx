@@ -277,7 +277,7 @@ export default function Page() {
         </div>
 
       </div>
-
+        Data Tabel
       <Table columns={columns} dataSource={currentData} pagination={false} />
       <Pagination current={currentPage} pageSize={pageSize} total={sheetData.length} onChange={handleChange} 
       style={{ textAlign: 'center', marginTop: '1rem', paddingTop: '1rem', paddingBottom: '5rem' }} />
