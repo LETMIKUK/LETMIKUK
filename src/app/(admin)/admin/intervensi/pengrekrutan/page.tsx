@@ -25,7 +25,7 @@ function generateMockData() {
   const randomAges = [22, 25, 30, 35];
   const randomEduBackgrounds = ["SD", "SMP", "SMA", "S1", "S2", "S3"];
   const randomInstitutions = ["Universitas A", "Universitas B", "Sekolah Tinggi C", "Institut D"];
-  const randomPositions = ["Spesialis dan Perancang Public Relations dan Affairs", "Manajer Kampanye Marketing", "Spesialis Marketing Digital", "Manajer Media Sosial", "Penulis Konten", "Graphic Designer", "Spesialis Pengiklanan", "Data Analyst"];
+  const randomPositions = ["Driver", "Relawan", "Relawan Logistik Bansos", "Manajer", "Relawan Penanggung Jawab Lokasi", "Relawan Manajer Penyimpanan"];
   const randomReasons = ["Saya menyukai pemecahan masalah", "Saya memiliki minat dalam teknologi", "Saya menikmati bekerja dalam tim", "Saya ingin menciptakan produk yang berdampak"];
   const randomPortfolios = ["PortofolioA.pdf", "PortofolioB.pdf", "PortofolioC.pdf", "PortofolioD.pdf"];
   const randomIslands = ["Papua", "Aceh", "Sulawesi"];

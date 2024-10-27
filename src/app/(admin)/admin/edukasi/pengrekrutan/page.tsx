@@ -29,7 +29,7 @@ function generateMockData() {
   const randomReasons = ["Saya menyukai pemecahan masalah", "Saya memiliki minat dalam teknologi", "Saya menikmati bekerja dalam tim", "Saya ingin menciptakan produk yang berdampak"];
   const randomPortfolios = ["PortofolioA.pdf", "PortofolioB.pdf", "PortofolioC.pdf", "PortofolioD.pdf"];
   const randomIslands = ["Papua", "Aceh", "Sulawesi"];
-  const randomGenders = ["Male", "Female"];
+  const randomGenders = ["Laki-Laki", "Perempuan"];
 
   let lastName = "";
   let lastAge = 0;
