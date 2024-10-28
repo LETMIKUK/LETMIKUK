@@ -132,31 +132,51 @@ Semoga rencana makan ini bermanfaat untuk anak Anda!`,
     //   console.log("loading:", loading);
     // }, 5000); // simulate response delay
 
-    // try {
-    const response: any = await fetch("/api/generate/app/nutrition", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ prompt: input }),
-    });
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-
-    let done = false;
-    while (!done) {
-      const { value, done: readerDone } = await reader.read();
-      done = readerDone;
-      const chunk = decoder.decode(value || new Uint8Array(), { stream: true });
-      setMessages((prev) => {
-        const updatedMessages = [...prev];
-        updatedMessages[updatedMessages.length - 1].text += chunk;
-        return updatedMessages;
+    try {
+      const response: any = await fetch("/api/generate/app/nutrition", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prompt: input }),
       });
-      console.log("last message text:", messages[messages.length - 1].text);
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      let done = false;
+      let isFirstChunk = true;
+
+      while (!done) {
+        const { value, done: readerDone } = await reader.read();
+        done = readerDone;
+
+        const chunk = decoder.decode(value || new Uint8Array(), {
+          stream: true,
+        });
+
+        setMessages((prev) => {
+          const updatedMessages = [...prev];
+          updatedMessages[updatedMessages.length - 1].text += chunk;
+          return updatedMessages;
+        });
+
+        // Set loading to false after receiving the first chunk
+        if (isFirstChunk) {
+          setLoading(false);
+          isFirstChunk = false; // Only do this for the first chunk
+        }
+
+        console.log("last message text:", messages[messages.length - 1].text);
+      }
+    } catch (error) {
+      console.error("Error during streaming:", error);
+      setMessages((prev) => [
+        ...prev,
+        { sender: "ai", text: "An error occurred. Please try again." },
+      ]);
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   // Animates the text of the last message if AI is typing
