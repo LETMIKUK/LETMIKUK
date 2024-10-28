@@ -92,17 +92,25 @@ export async function POST(request: NextRequest) {
 
     console.log("response id:", stream._request_id);
 
+    let fullResponse = "";
     const encoder = new TextEncoder();
     const readableStream = new ReadableStream({
       async start(controller) {
         for await (const chunk of stream) {
-          const partialContent = chunk.choices?.[0]?.delta?.content || "";
-          const queue = encoder.encode(partialContent);
-          controller.enqueue(queue);
+          if (chunk.choices[0].delta.content) {
+            const partialContent = chunk.choices?.[0]?.delta?.content || "";
+            console.log("chunk:", chunk.choices[0].delta.content);
+            const queue = encoder.encode(partialContent);
+            console.log("queue:", queue);
+            fullResponse = fullResponse + partialContent;
+            controller.enqueue(queue);
+          }
         }
         controller.close();
+        console.log("fullResponse:", fullResponse);
       },
     });
+    console.log("fullResponse:", fullResponse);
 
     return new NextResponse(readableStream, {
       headers: { "Content-Type": "text/event-stream" },

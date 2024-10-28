@@ -1,6 +1,14 @@
 import React from "react";
 
-const GradientText = ({ text, speed }: { text: string; speed: number }) => {
+const GradientText = ({
+  text,
+  speed,
+  className,
+}: {
+  text: string;
+  speed: number;
+  className?: string;
+}) => {
   // Styles for the gradient text
   const gradientStyle = {
     background:
@@ -26,7 +34,7 @@ const GradientText = ({ text, speed }: { text: string; speed: number }) => {
   return (
     <>
       <style>{keyframes}</style>
-      <p className="font-light" style={gradientStyle}>
+      <p className={`${className} font-light`} style={gradientStyle}>
         {/* Please let us cook 🙏 */}
         {text}
       </p>
