@@ -3,28 +3,32 @@ import Link from "next/link";
 import LetmikukLogo from "./components/svg/LetmikukLogo";
 import GradientText from "./components/GradientText";
 import LetmikukSymbolLogo from "./components/svg/LetmikukSymbolLogo";
+import { BackgroundLines } from "@/components/ui/background-lines";
 
 export default function Home() {
   return (
     <main className="min-h-screen">
-      <div
-        id="hero"
+      <BackgroundLines
+        svgOptions={{ duration: 7 }}
         className="graph-paper h-screen w-full justify-center items-center flex flex-col"
       >
-        <div className="max-w-24">
-          <LetmikukSymbolLogo className="w-full" />
+        <div className="flex flex-col justify-center items-center relative z-50">
+          <div className="max-w-24">
+            <LetmikukSymbolLogo className="w-full" />
+          </div>
+          <h1 className="w-lg font-bold">
+            <LetmikukLogo className="w-full" />
+          </h1>
+          <h2 className="mt-5 md:w-full text-center max-sm:max-w-sm">
+            <GradientText
+              className="!font-bold"
+              speed={5}
+              text="Layanan Edukasi Terkait Malnutrisi dan Intervensi Kesehatan Untuk Keluarga"
+            />
+          </h2>
         </div>
-        <h1 className="w-lg font-bold">
-          <LetmikukLogo className="w-full" />
-        </h1>
-        <h2 className="mt-5 md:w-full text-center max-sm:max-w-sm">
-          <GradientText
-            className="!font-bold"
-            speed={5}
-            text="Layanan Edukasi Terkait Malnutrisi dan Intervensi Kesehatan Untuk Keluarga"
-          />
-        </h2>
-        <div className="flex mt-10 items-center flex-col space-y-5">
+
+        <div className="flex mt-10 relative z-50 items-center flex-col space-y-5">
           <Link href={"/admin"}>
             <Button variant={"link"}> LETMIKUK Dashboard 📊</Button>
           </Link>
@@ -38,7 +42,7 @@ export default function Home() {
             <Button variant={"link"}>Tentang Kami 👥</Button>
           </Link>
         </div>
-      </div>
+      </BackgroundLines>
       <div className="h-screen w-full p-10">
         <h2 id="apa-itu-letmikuk">
           <Link href="/#apa-itu-letmikuk">
