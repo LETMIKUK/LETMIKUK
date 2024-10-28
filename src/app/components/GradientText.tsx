@@ -1,6 +1,6 @@
 import React from "react";
 
-const GradientText = ({ text }: { text: string }) => {
+const GradientText = ({ text, speed }: { text: string; speed: number }) => {
   // Styles for the gradient text
   const gradientStyle = {
     background:
@@ -8,7 +8,7 @@ const GradientText = ({ text }: { text: string }) => {
     backgroundSize: "400% 100%", // Make the background wide enough for smooth transition
     WebkitBackgroundClip: "text", // For text gradient in WebKit browsers
     WebkitTextFillColor: "transparent", // Make the text fill transparent to see the gradient
-    animation: "moveGradient 1s linear infinite", // Fixed gradient speed
+    animation: `moveGradient ${speed}s linear infinite`, // Fixed gradient speed
   };
 
   // Keyframes for gradient movement

@@ -87,12 +87,17 @@ const config: Config = {
           "0%": { "background-position": "0% 50%" },
           "100%": { "background-position": "100% 50%" },
         },
+        "fade-in": {
+          "0%": { opacity: "0%", transform: "translateY(5px)" },
+          "100%": { opacity: "100%", transform: "translateY(0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "ai-gradient-sparkle": "ai-gradient-sparkle 3s ease-out",
         "gradient-x": "gradient-x 8s ease infinite",
+        "fade-in": "fade-in 0.5s ease-in-out",
       },
     },
   },

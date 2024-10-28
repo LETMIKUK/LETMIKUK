@@ -267,7 +267,7 @@ export default function Page() {
               <>
                 <div className="flex space-x-2">
                   <Sparkle className="animate-spin" />
-                  <GradientText />
+                  <GradientText text="Membuat konten..." />
                 </div>
                 <GradientAIBarsContainer barCount={5} />
               </>

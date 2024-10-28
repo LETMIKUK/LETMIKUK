@@ -10,10 +10,10 @@ import {
 } from "@/components/ui/chat/chat-bubble";
 import { ChatInput } from "@/components/ui/chat/chat-input";
 import { ChatMessageList } from "@/components/ui/chat/chat-message-list";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { BotMessageSquare, MessageCircle, Send } from "lucide-react";
+import { BotMessageSquare, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import Markdown from "react-markdown";
+import { useAnimatedText } from "@/lib/effects";
 
 export default function Page() {
   const [input, setInput] = useState("");
@@ -110,49 +110,60 @@ Semoga rencana makan ini bermanfaat untuk anak Anda!`,
     setMessages((prev) => [...prev, userMessage]);
     setInput(""); // Clear input field
     setLoading(true); // Set loading state
+    console.log("loading:", loading);
+    // Add a placeholder for AI's loading message
+    const aiLoadingMessage = {
+      sender: "ai",
+      text: "", // Text will be replaced later
+    };
+    setMessages((prev) => [...prev, aiLoadingMessage]);
 
-    try {
-      setTimeout(() => {
-        setMessages((prev: any) => [
-          ...prev,
-          {
-            sender: "ai",
-            text: "Ini adalah balasan AI berdasarkan masukan Anda.",
-          },
-        ]);
-      }, 5000); // simulate response delay
-    } finally {
-      setLoading(false);
-    }
-    // Mock AI response after a delay (replace with actual API call)
+    // setTimeout(() => {
+    //   // Update the last message with actual AI response
+    //   setMessages((prev) => {
+    //     const updatedMessages = [...prev];
+    //     updatedMessages[updatedMessages.length - 1] = {
+    //       sender: "ai",
+    //       text: "Ini adalah balasan AI berdasarkan masukan Anda.",
+    //     };
+    //     return updatedMessages;
+    //   });
+    //   setLoading(false);
+    //   console.log("loading:", loading);
+    // }, 5000); // simulate response delay
 
     // try {
-    //   const response = await fetch("/api/generate/app/nutrition", {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify({ prompt: input }),
-    //   });
+    const response: any = await fetch("/api/generate/app/nutrition", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ prompt: input }),
+    });
 
-    //   const data = await response.json();
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
 
-    //   if (data.error) {
-    //     throw new Error(data.error);
-    //   }
-
-    //   // Add the AI response to the list
-    //   const aiMessage = {
-    //     sender: "ai",
-    //     text: data.data,
-    //   };
-    //   setMessages((prev) => [...prev, aiMessage]);
-    // } catch (error) {
-    //   console.error("Error fetching AI response:", error);
-    // } finally {
-    //   setLoading(false); // Reset loading state
-    // }
+    let done = false;
+    while (!done) {
+      const { value, done: readerDone } = await reader.read();
+      done = readerDone;
+      const chunk = decoder.decode(value || new Uint8Array(), { stream: true });
+      setMessages((prev) => {
+        const updatedMessages = [...prev];
+        updatedMessages[updatedMessages.length - 1].text += chunk;
+        return updatedMessages;
+      });
+      console.log("last message text:", messages[messages.length - 1].text);
+    }
+    setLoading(false);
   };
+
+  // Animates the text of the last message if AI is typing
+  const lastMessage = messages[messages.length - 1];
+  const animatedText =
+    useAnimatedText(lastMessage?.sender === "ai" ? lastMessage.text : "") || "";
+
   //   w-0 w-auto
   return (
     <div className="flex flex-grow flex-col w-full max-h-screen h-full relative overflow-hidden">
@@ -166,7 +177,16 @@ Semoga rencana makan ini bermanfaat untuk anak Anda!`,
             layout="ai"
             variant={message.sender === "ai" ? "received" : "sent"}
           >
-            {message.sender === "ai" ? (
+            {message.sender === "ai" &&
+            loading &&
+            index === messages.length - 1 ? (
+              // Render loading indicator with fade-in animation
+              <div className="flex space-x-2 animate-fade-in">
+                <Sparkle className="animate-spin" />
+                <GradientText speed={3} text="Membuat tanggapan..." />
+              </div>
+            ) : (
+              // Render the avatar for non-loading messages
               <ChatBubbleAvatar
                 src={
                   message.sender === "ai"
@@ -175,29 +195,30 @@ Semoga rencana makan ini bermanfaat untuk anak Anda!`,
                 }
                 fallback={message.sender === "ai" ? "AI" : "P"}
               />
-            ) : (
-              <></>
             )}
 
             <ChatBubbleMessage
-              className={`${message.sender === "ai" ? "" : "bg-secondary ml-2 rounded-lg"}`}
+              className={`${
+                message.sender === "ai" ? "" : "bg-secondary ml-2 rounded-lg"
+              } ${loading && index === messages.length - 1 ? "animate-fade-in" : ""}`}
             >
-              {message.sender === "ai" &&
-              loading &&
-              index === messages.length - 1 ? (
-                // Show loading state for AI response
-                <div className="flex w-full justify space-x-2">
-                  <Sparkle className="animate-spin" />
-                  <GradientText text="Membuat balasan..." />
+              {loading &&
+              index === messages.length - 1 &&
+              message.sender === "ai" ? (
+                <div className="w-full animate-fade-in">
+                  <GradientAIBarsContainer barCount={5} />
                 </div>
               ) : (
-                <Markdown className={`text-foreground `}>
-                  {message.text}
+                <Markdown className="text-foreground animate-fade-in">
+                  {index === messages.length - 1 && loading
+                    ? animatedText
+                    : message.text}
                 </Markdown>
               )}
             </ChatBubbleMessage>
           </ChatBubble>
         ))}
+
         <div ref={messagesEndRef} />
       </ChatMessageList>
       <div className="sticky flex space-x-1 transition-all duration-300 items-center justify-center bottom-0 w-full bg-background z-10 p-2 shadow-md">

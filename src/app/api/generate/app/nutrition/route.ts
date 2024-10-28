@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
 
     console.log("Context string:", contextString);
 
-    const response = await openai.chat.completions.create({
+    const stream = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
@@ -87,26 +87,30 @@ export async function POST(request: NextRequest) {
       top_p: 1,
       frequency_penalty: 0,
       presence_penalty: 0,
+      stream: true,
     });
-    console.log("response:", response);
-    // Access only the content from the response
-    const content = response.choices[0]?.message?.content || "";
-    console.log("content:", content);
-    // Check if choiceContent is empty or unexpected and add an error flag
-    const isContentEmpty = !content;
 
-    return NextResponse.json(
-      {
-        message: isContentEmpty ? "Content generation failed" : "OK",
-        data: isContentEmpty ? null : content,
-        error: isContentEmpty ? "No content generated" : null,
+    console.log("response id:", stream._request_id);
+
+    const encoder = new TextEncoder();
+    const readableStream = new ReadableStream({
+      async start(controller) {
+        for await (const chunk of stream) {
+          const partialContent = chunk.choices?.[0]?.delta?.content || "";
+          const queue = encoder.encode(partialContent);
+          controller.enqueue(queue);
+        }
+        controller.close();
       },
-      { status: isContentEmpty ? 200 : 200 }
-    );
-  } catch (error: any) {
-    console.error("Error:", error); // Log the error for debugging
+    });
+
+    return new NextResponse(readableStream, {
+      headers: { "Content-Type": "text/event-stream" },
+    });
+  } catch (error) {
+    console.error("Error:", error);
     return NextResponse.json(
-      { message: "Error", error: error?.message },
+      { message: "Error", error: "Unexpected error" },
       { status: 500 }
     );
   }
