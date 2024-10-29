@@ -4,13 +4,15 @@ import LetmikukLogo from "./components/svg/LetmikukLogo";
 import GradientText from "./components/GradientText";
 import LetmikukSymbolLogo from "./components/svg/LetmikukSymbolLogo";
 import { BackgroundLines } from "@/components/ui/background-lines";
+import { ArrowDown } from "lucide-react";
+import ScrollButton from "./components/ScrollButton";
 
 export default function Home() {
   return (
     <main className="min-h-screen">
       <BackgroundLines
         svgOptions={{ duration: 7 }}
-        className="graph-paper h-screen w-full justify-center items-center flex flex-col"
+        className="graph-paper relative h-screen w-full justify-center items-center flex flex-col"
       >
         <div className="flex flex-col justify-center items-center relative z-50">
           <div className="max-w-24">
@@ -42,6 +44,13 @@ export default function Home() {
             <Button variant={"link"}>Tentang Kami 👥</Button>
           </Link>
         </div>
+        <ScrollButton
+          id="apa-itu-letmikuk"
+          className="absolute flex flex-col justify-center items-center bottom-3"
+        >
+          <p className=" mb-2">ℹ️</p>
+          <ArrowDown className="animate-bounce" />
+        </ScrollButton>
       </BackgroundLines>
       <div className="h-screen w-full p-10">
         <h2 id="apa-itu-letmikuk">
