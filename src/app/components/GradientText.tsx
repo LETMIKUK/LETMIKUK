@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import React from "react";
 
 const GradientText = ({
@@ -34,7 +35,7 @@ const GradientText = ({
   return (
     <>
       <style>{keyframes}</style>
-      <p className={`${className} font-light`} style={gradientStyle}>
+      <p className={cn("font-light", className)} style={gradientStyle}>
         {/* Please let us cook 🙏 */}
         {text}
       </p>
