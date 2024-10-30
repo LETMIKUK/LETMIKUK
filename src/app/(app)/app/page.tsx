@@ -5,26 +5,16 @@ import Sparkle from "@/app/components/svg/Sparkle";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
-  Apple,
-  ArrowRight,
   Book,
   Calendar,
   ChartArea,
   ChefHat,
   Cookie,
-  ForkKnife,
   ForkKnifeCrossed,
   HelpCircle,
-  HelpCircleIcon,
   Home,
-  Info,
-  Library,
-  Milk,
   Newspaper,
-  Notebook,
-  Package,
   Ruler,
-  School,
   Settings,
 } from "lucide-react";
 import Link from "next/link";

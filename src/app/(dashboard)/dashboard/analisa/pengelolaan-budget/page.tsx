@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { Table, Pagination } from "antd";
-import "lib/AssetTable.css";
+import "@/lib/AssetTable.css";
 
 interface AssetData {
   key: number;
@@ -58,7 +58,20 @@ function getPriceByAssetType(assetType: string): number {
 
 // Generate unique asset data on the client side only
 function generateUniqueAssetData(): AssetData[] {
-  const assets = ["Lakban", "Beras", "Daging Ayam", "Telur", "Wortel", "Tomat", "Jeruk", "Apel", "Air", "Kardus", "Packaging Sterofoam", "Kantong Plastik"];
+  const assets = [
+    "Lakban",
+    "Beras",
+    "Daging Ayam",
+    "Telur",
+    "Wortel",
+    "Tomat",
+    "Jeruk",
+    "Apel",
+    "Air",
+    "Kardus",
+    "Packaging Sterofoam",
+    "Kantong Plastik",
+  ];
 
   return assets.map((assetName, index) => {
     const assetType = getAssetType(assetName);
@@ -67,7 +80,8 @@ function generateUniqueAssetData(): AssetData[] {
     const amountNeeded = 100;
 
     // Calculate additional budget if current stock is less than the needed stock
-    const additionalBudget = currentAmount < amountNeeded ? (amountNeeded - currentAmount) * price : 0;
+    const additionalBudget =
+      currentAmount < amountNeeded ? (amountNeeded - currentAmount) * price : 0;
 
     return {
       key: index,
@@ -127,18 +141,22 @@ export default function AssetTable() {
       title: "Modal Diperlukan",
       dataIndex: "additionalBudget",
       key: "additionalBudget",
-      render: (additionalBudget: number) => `Rp ${additionalBudget.toLocaleString()}`, // Format additional budget with thousand separators
+      render: (additionalBudget: number) =>
+        `Rp ${additionalBudget.toLocaleString()}`, // Format additional budget with thousand separators
     },
   ];
 
-  const currentData = assetData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const currentData = assetData.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   const handleChange = (page: number) => {
     setCurrentPage(page);
   };
 
   return (
-    <div style={{ padding: '2rem', backgroundColor: '#f5f5f5' }}>
+    <div style={{ padding: "2rem", backgroundColor: "#f5f5f5" }}>
       <h2>Penyimpanan Aset</h2>
       <Table
         columns={columns}
@@ -157,9 +175,9 @@ export default function AssetTable() {
         pageSize={pageSize}
         onChange={handleChange}
         style={{
-          textAlign: 'center',
-          marginTop: '1rem',
-          padding: '1rem 0',
+          textAlign: "center",
+          marginTop: "1rem",
+          padding: "1rem 0",
         }}
       />
     </div>

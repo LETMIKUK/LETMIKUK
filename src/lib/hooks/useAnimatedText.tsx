@@ -3,13 +3,13 @@
 import { animate, useMotionValue } from "framer-motion";
 import { useEffect, useState } from "react";
 
-let delimiter = "";
+const delimiter = "";
 
 export function useAnimatedText(text: string) {
-  let animatedCursor = useMotionValue(0);
-  let [cursor, setCursor] = useState(0);
-  let [prevText, setPrevText] = useState(text);
-  let [isSameText, setIsSameText] = useState(true);
+  const animatedCursor = useMotionValue(0);
+  const [cursor, setCursor] = useState(0);
+  const [prevText, setPrevText] = useState(text);
+  const [isSameText, setIsSameText] = useState(true);
 
   if (prevText !== text) {
     setPrevText(text);
@@ -25,7 +25,7 @@ export function useAnimatedText(text: string) {
       animatedCursor.jump(0);
     }
 
-    let controls = animate(animatedCursor, text.split(delimiter).length, {
+    const controls = animate(animatedCursor, text.split(delimiter).length, {
       duration: 5,
       ease: "circOut",
       onUpdate(latest) {
