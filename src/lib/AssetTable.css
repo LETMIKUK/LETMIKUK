@@ -1,0 +1,29 @@
+/* Remove default cell borders */
+.ant-table-tbody > tr > td {
+    border: none;
+    padding: 16px; /* Adjust padding as needed */
+}
+
+/* Add a subtle gray border around each row */
+.ant-table-tbody > tr.table-row-hover {
+    border: 2px solid #000000; /* Light gray border around each row */
+    border-radius: 8px; /* Optional: rounded corners for each row */
+    overflow: hidden; /* Ensure content stays within rounded borders */
+    margin-bottom: 8px; /* Add spacing between rows */
+    box-shadow: 0 0px 3px rgba(0, 0, 0, 0.1); /* Optional: subtle shadow for depth */
+}
+
+/* Hover effect */
+.table-row-hover:hover {
+    transform: scale(1.02);
+    transition: transform 0.2s ease;
+}
+
+/* Set background color for low and sufficient inventory */
+.low-inventory {
+    background-color: #ff9d9d;
+}
+
+.sufficient-inventory {
+    background-color: #78fe76;
+}
