@@ -22,7 +22,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title:
-    "LETMIKUK | Layanan Efektif untuk Tanggap Malnutrisi dan Intervensi Kesehatan Untuk Kesejahteraan",
+    "LETMIKUK | Layanan Edukasi Terkait Malnutrisi dan Intervensi Kesehatan Untuk Keluarga",
   description: "By TIM LETMIKUK (Felixx, Ryan, Syafiq)",
 };
 
