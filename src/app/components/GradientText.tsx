@@ -1,6 +1,15 @@
+import { cn } from "@/lib/utils";
 import React from "react";
 
-const GradientText = () => {
+const GradientText = ({
+  text,
+  speed,
+  className,
+}: {
+  text: string;
+  speed: number;
+  className?: string;
+}) => {
   // Styles for the gradient text
   const gradientStyle = {
     background:
@@ -8,7 +17,7 @@ const GradientText = () => {
     backgroundSize: "400% 100%", // Make the background wide enough for smooth transition
     WebkitBackgroundClip: "text", // For text gradient in WebKit browsers
     WebkitTextFillColor: "transparent", // Make the text fill transparent to see the gradient
-    animation: "moveGradient 1s linear infinite", // Fixed gradient speed
+    animation: `moveGradient ${speed}s linear infinite`, // Fixed gradient speed
   };
 
   // Keyframes for gradient movement
@@ -26,9 +35,9 @@ const GradientText = () => {
   return (
     <>
       <style>{keyframes}</style>
-      <p className="font-light" style={gradientStyle}>
+      <p className={cn("font-light", className)} style={gradientStyle}>
         {/* Please let us cook 🙏 */}
-        Membuat konten...
+        {text}
       </p>
     </>
   );
