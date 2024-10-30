@@ -1,3 +1,5 @@
+"use client";
+
 import GradientText from "@/app/components/GradientText";
 import LetmikukLogo from "@/app/components/svg/LetmikukLogo";
 import LetmikukSymbolLogo from "@/app/components/svg/LetmikukSymbolLogo";

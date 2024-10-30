@@ -1,3 +1,5 @@
+"use client";
+
 import LetmikukLogo from "@/app/components/svg/LetmikukLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
