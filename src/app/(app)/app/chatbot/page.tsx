@@ -190,7 +190,7 @@ Semoga rencana makan ini bermanfaat untuk anak Anda!`,
     setLoading(true);
 
     try {
-      const response = await fetch("/api/generate/app/nutrition", {
+      const response = await fetch("/api/app/generate/nutrition", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: input }),

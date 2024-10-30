@@ -1,7 +1,7 @@
 import { type SchemaTypeDefinition } from "sanity";
 import dashboardAccount from "./dashboardAccount";
-import userAccount from "./userAccount";
+import appAccount from "./appAccount";
 
 export const schema: { types: SchemaTypeDefinition[] } = {
-  types: [dashboardAccount, userAccount],
+  types: [dashboardAccount, appAccount],
 };

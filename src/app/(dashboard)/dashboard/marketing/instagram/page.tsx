@@ -131,7 +131,7 @@ export default function Page() {
     handleStart();
 
     try {
-      const generate = await fetch("/api/generate/ig/education", {
+      const generate = await fetch("/api/dashboard/generate/ig/education", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -267,7 +267,7 @@ export default function Page() {
               <>
                 <div className="flex space-x-2">
                   <Sparkle className="animate-spin" />
-                  <GradientText text="Membuat konten..." />
+                  <GradientText speed={5} text="Membuat konten..." />
                 </div>
                 <GradientAIBarsContainer barCount={5} />
               </>
@@ -278,7 +278,7 @@ export default function Page() {
                   {secondsPassedRef.current.toFixed(3)}
                 </span>
                 <p className="text-slate-500 text-xs">
-                  Estimasi waktu: 5 menit{" "}
+                  Estimasi waktu: 15 detik{" "}
                 </p>
               </div>
             ) : null}

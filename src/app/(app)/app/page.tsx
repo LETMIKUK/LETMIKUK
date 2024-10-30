@@ -75,7 +75,7 @@ export default function Page() {
             variant={"outline"}
           >
             <Calendar className="text-3xl" />
-            <p className="text-xs">Scan Schedule</p>
+            <p className="text-xs">Skedul Scan</p>
           </Button>
           <Button
             className=" flex shadow-sm rounded-xl flex-col aspect-square w-full py-10 text-lg"
@@ -89,28 +89,28 @@ export default function Page() {
             variant={"outline"}
           >
             <ChartArea className="text-3xl" />
-            <p className="text-xs">Standards</p>
+            <p className="text-xs">Standar Badan</p>
           </Button>
           <Button
             className="flex shadow-sm rounded-xl flex-col aspect-square text-lg w-full py-10"
             variant={"outline"}
           >
             <ChefHat className="text-3xl" />
-            <p className="text-xs">Meal Plans</p>
+            <p className="text-xs">Meal Plan</p>
           </Button>
           <Button
             className="flex shadow-sm rounded-xl flex-col aspect-square text-lg w-full py-10"
             variant={"outline"}
           >
             <Cookie className="text-3xl" />
-            <p className="text-xs">Aid Request</p>
+            <p className="text-xs">Bantuan Gizi</p>
           </Button>
           <Button
             className="flex shadow-sm rounded-xl flex-col aspect-square text-lg w-full py-10"
             variant={"outline"}
           >
             <Book className="text-3xl" />
-            <p className="text-xs text-wrap">Guidebook</p>
+            <p className="text-xs text-wrap">Perpustakaan</p>
           </Button>
         </div>
         <Link href={"/app/chatbot"}>
@@ -128,10 +128,24 @@ export default function Page() {
         </Link>
       </div>
       <div className="absolute bottom-0 px-8 text-muted-foreground border-t bg-white flex-row justify-between shadow-sm py-5 flex w-full">
-        <Home />
-        <ForkKnifeCrossed />
-        <Newspaper />
-        <HelpCircle />
+        <div className="flex flex-col justify-center items-center">
+          <Home />
+          <p className="text-xs">Beranda</p>
+        </div>
+        <div className="flex flex-col justify-center items-center">
+          <ForkKnifeCrossed />
+          <p className="text-xs">Resep</p>
+        </div>
+        <div className="flex flex-col justify-center items-center">
+          <Newspaper />
+
+          <p className="text-xs">Berita</p>
+        </div>
+        <div className="flex flex-col justify-center items-center">
+          <HelpCircle />
+
+          <p className="text-xs">Bantuan</p>
+        </div>
       </div>
     </div>
   );

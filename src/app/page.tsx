@@ -31,7 +31,7 @@ export default function Home() {
         </div>
 
         <div className="flex mt-10 relative z-50 items-center flex-col space-y-5">
-          <Link href={"/admin"}>
+          <Link href={"/dashboard"}>
             <Button variant={"link"}> LETMIKUK Dashboard 📊</Button>
           </Link>
           <Link href={"/app"}>
@@ -40,7 +40,7 @@ export default function Home() {
           <Link href={"/riset"}>
             <Button variant={"link"}> Riset & Argumen Kami 📝</Button>
           </Link>
-          <Link href={"/tentang"}>
+          <Link href={"/#tentang-kami"}>
             <Button variant={"link"}>Tentang Kami 👥</Button>
           </Link>
         </div>

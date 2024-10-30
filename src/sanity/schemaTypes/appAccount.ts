@@ -6,13 +6,17 @@ export default defineType({
   type: "document",
   fields: [
     defineField({
-      name: "userId",
-      title: "User ID",
+      name: "fullName",
+      title: "Nama Lengkap",
       type: "string",
-      readOnly: true,
     }),
     { name: "email", title: "Email", type: "string" },
-    { name: "hashedPassword", title: "Hashed Password", type: "string" },
+    {
+      name: "hashedPassword",
+      title: "Hashed Password",
+      type: "string",
+      readOnly: true,
+    },
     { name: "role", title: "Role", type: "string" },
     { name: "createdAt", title: "Created At", type: "datetime" },
   ],
