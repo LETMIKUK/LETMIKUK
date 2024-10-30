@@ -38,10 +38,10 @@ Proyek ini dikembangkan menggunakan Generative AI dan Machine Learning untuk men
 Kami adalah tim mahasiswa yang berdedikasi untuk menciptakan solusi inovatif bagi masalah stunting di Indonesia. Tim LETMIKUK terdiri dari tiga mahasiswa berusia 19 tahun dengan latar belakang pendidikan di bidang teknologi dan komputasi.
 
 - **Felix Colin Lianto**  
-  BTEC Higher National Diploma Computing | UniSadhuGuna College BSD
+  BTEC Higher National Diploma Computing | UniSadhuGuna International College BSD
 
 - **Ryan Ferdinand Tobing**  
-  BTEC Higher National Diploma Computing | UniSadhuGuna College BSD
+  BTEC Higher National Diploma Computing | UniSadhuGuna International College BSD
 
 - **Ahmad Syafiq Hartono**  
   S1 Computer Science | BINUS Kemanggisan
