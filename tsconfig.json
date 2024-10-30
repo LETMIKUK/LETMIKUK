@@ -17,8 +17,10 @@
         "name": "next"
       }
     ],
+    "baseUrl": "./src", // Set baseUrl to the 'src' directory
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./*"], // Ensure the path resolves correctly from baseUrl
+      "*": ["node_modules/*", "*"] // Allow other imports
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
