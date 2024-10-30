@@ -1,4 +1,4 @@
-# LETMIKUK - Layanan Efektif untuk Tanggap Malnutrisi dan Intervensi Kesehatan Untuk Kesejahteraan
+# LETMIKUK - Layanan Edukasi Terkait Malnutrisi dan Intervensi Kesehatan Untuk Keluarga
 
 ## Deskripsi Proyek
 
@@ -15,11 +15,11 @@ LETMIKUK adalah _prototype_ untuk serangkaian layanan berbasis teknologi yang be
 ## Struktur Layanan
 
 - **Aplikasi untuk Orang Tua**  
-  Memungkinkan orang tua memantau pertumbuhan anak di bawah usia dua tahun, memeriksa status gizi, serta mendapatkan rencana resep yang sesuai kebutuhan gizi anak.
+  Memungkinkan orang tua memantau pertumbuhan anak (terutama yang masih balita), memeriksa status gizi, serta mendapatkan rencana resep yang sesuai kebutuhan gizi anak.
 - **Aplikasi untuk Pemerintah dan Lembaga Kesehatan**  
   Digunakan oleh akun-akun pemerintah yang terverifikasi untuk memantau status stunting di berbagai daerah, memberikan bantuan pangan, mengelola kamp intervensi, dan mengkoordinasikan sumber daya.
 - **Dashboard Admin**  
-  Digunakan oleh pemerintah untuk memonitor dan mengelola prevalensi stunting per provinsi, mengorganisasi proyek intervensi yang sedang berlangsung, serta merekrut relawan dan tenaga pendidik yang diperlukan.
+  Digunakan oleh pemerintah untuk memonitor dan mengelola prevalensi stunting per provinsi, mengorganisasi proyek intervensi yang sedang berlangsung, serta merekrut relawan dan tenaga kerja yang diperlukan.
 
 ## Implementasi
 
@@ -29,13 +29,13 @@ Proyek ini dikembangkan menggunakan Generative AI dan Machine Learning untuk men
 
 - **Next.js** sebagai framework utama untuk pengembangan web.
 - **Python Machine Learning** untuk deteksi stunting dan prediksi kebutuhan daerah.
-- **Generative AI (Meta-Llama)** untuk menghasilkan rencana nutrisi dan resep untuk orang tua.
+- **Generative AI (GPT-4o)** untuk menghasilkan rencana nutrisi dan resep untuk orang tua.
 - **Sanity CMS** untuk mengelola konten yang dinamis dan data.
 <!-- - **Midtrans** sebagai sistem pembayaran untuk layanan tambahan yang memerlukan donasi atau pembelian makanan. -->
 
 ## Tim LETMIKUK
 
-Kami adalah tim mahasiswa yang berdedikasi untuk menciptakan solusi inovatif bagi masalah stunting di Indonesia. Tim LETMIKUK terdiri dari tiga mahasiswa berusia 19 tahun dengan latar belakang pendidikan di bidang teknologi dan komputasi.
+Kami adalah sekelompok anak muda yang berdedikasi untuk menciptakan solusi inovatif bagi masalah stunting di Indonesia. Tim LETMIKUK terdiri dari tiga mahasiswa berusia 19 tahun dengan latar belakang pendidikan di bidang teknologi dan komputasi.
 
 - **Felix Colin Lianto**  
   BTEC Higher National Diploma Computing | UniSadhuGuna International College BSD
