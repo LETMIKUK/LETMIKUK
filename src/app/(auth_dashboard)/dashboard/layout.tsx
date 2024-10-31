@@ -2,9 +2,6 @@ import type { Metadata } from "next";
 // import "@/app/globals.css";
 import { AdminSidebar } from "@/app/components/AdminSidebar";
 import AdminHeader from "@/app/components/AdminHeader";
-// import { Inter } from "next/font/google";
-
-// const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "LETMIKUK Dashboard",
@@ -19,10 +16,10 @@ export default function AdminLayout({
 }>) {
   return (
     <>
-      <AdminHeader />
-      <main className="bg-slate-100 flex h-screen">
-        <AdminSidebar />
-        <div className="p-5 flex-1">{children}</div>
+      <main className="bg-slate-100 flex flex-col justify-center items-center h-screen">
+        <div className="p-5 flex-1 flex flex-col justify-center items-center">
+          {children}
+        </div>
       </main>
     </>
   );
