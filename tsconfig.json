@@ -19,9 +19,9 @@
     ],
     "baseUrl": "./src", // Set baseUrl to the 'src' directory
     "paths": {
-      "@/*": ["./*"], // Ensure the path resolves correctly from baseUrl
-      "*": ["node_modules/*", "*"] // Allow other imports
-    }
+      "@/*": ["./src/*"]
+    },
+    "target": "ES2017"
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
