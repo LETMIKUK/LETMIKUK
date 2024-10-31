@@ -32,7 +32,37 @@ function getAssetType(assetName: string): string {
     case "Packaging Sterofoam":
     case "Kantong Plastik":
     case "Lakban":
+    case "Piring Sekali Pakai":
+    case "Gelas Sekali Pakai":
       return "Pengemasan";
+    case "Tenda":
+    case "Meja":
+    case "Kursi":
+    case "Truk":
+      return "Fasilitas Lokasi";
+    case "Jarum Suntik":
+    case "Obat Suntik Vitamin":
+    case "Obat Suntik Protein":
+    case "Tisu Alkohol":
+    case "Tablet Tambah Darah":
+      return "Perlengkapan Medis";
+    case "Spatula":
+    case "Centongan":
+    case "Teflon":
+    case "Panci":
+    case "Kompor Portable":
+    case "Gas Kaleng":
+      return "Peralatan Masak";
+    case "Proyektor":
+    case "Layar Proyektor":
+    case "Mikrofon":
+    case "Speaker":
+    case "Megaphone":
+    case "Charger":
+    case "Cable Extension":
+    case "Smartphone":
+    case "Tablet":
+     return "Alat Bantuan Edukasi";
     default:
       return "Unknown";
   }
@@ -51,6 +81,14 @@ function getPriceByAssetType(assetType: string): number {
       return 20000;
     case "Pengemasan":
       return 5000;
+    case "Fasilitas Lokasi":
+      return 250000;
+    case "Perlengkapan Medis":
+      return 200000;
+    case "Peralatan Masak":
+      return 150000;
+    case "Alat Bantuan Edukasi":
+      return 200000;
     default:
       return 0;
   }
@@ -58,7 +96,7 @@ function getPriceByAssetType(assetType: string): number {
 
 // Generate unique asset data on the client side only
 function generateUniqueAssetData(): AssetData[] {
-  const assets = ["Lakban", "Beras", "Daging Ayam", "Telur", "Wortel", "Tomat", "Jeruk", "Apel", "Air", "Kardus", "Packaging Sterofoam", "Kantong Plastik"];
+  const assets = ["Proyektor", "Layar Proyektor", "Smartphone", "Tablet", "Mikrofon", "Speaker", "Megaphone", "Cable Extension", "Charger", "Spatula", "Centongan", "Teflon","Panci", "Kompor Portable", "Gas Kaleng", "Tablet Tambah Darah", "Jarum Suntik", "Obat Suntik Vitamin", "Obat Suntik Protein","Tisu Alkohol", "Tenda", "Meja", "Kursi", "Truk", "Lakban", "Beras", "Daging Ayam", "Telur", "Wortel", "Tomat", "Jeruk", "Apel", "Air", "Kardus", "Packaging Sterofoam", "Kantong Plastik", "Piring Sekali Pakai", "Gelas Sekali Pakai"];
 
   return assets.map((assetName, index) => {
     const assetType = getAssetType(assetName);
