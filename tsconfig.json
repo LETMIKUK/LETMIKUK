@@ -17,7 +17,6 @@
         "name": "next"
       }
     ],
-    "baseUrl": "./src", // Set baseUrl to the 'src' directory
     "paths": {
       "@/*": ["./src/*"]
     },

@@ -1,6 +1,5 @@
 import IndonesiaMap from "@/app/components/IndonesiaMap";
 import StuntingProvinceCard from "@/app/components/StuntingProvinceCard";
-import { Card, Row } from "antd";
 import TypographyTitle from "antd/lib/typography/Title";
 
 export default function Page() {

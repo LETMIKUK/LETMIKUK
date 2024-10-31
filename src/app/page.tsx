@@ -65,13 +65,13 @@ export default function Home() {
           LETMIKUK (singkatan dari Layanan Edukasi Terkait Malnutrisi dan
           Intervensi Kesehatan Untuk Keluarga) adalah program berisi kumpulan
           layanan untuk mencegah stunting yang didesain untuk dapat dimanfaatkan
-          segala kalangan masyarakat.
+          <b> oleh segala kalangan masyarakat.</b>
           <br />
           <br />
           Mulai dari AI yang dapat membantu orang tua dalam merencanakan menu
           makanan yang bernutrisi untuk anak sampai AI yang membantu karyawan
-          pemerintah dalam memudahkan tugas administratif untuk intervensi
-          langsung ke daerah yang rawan stunting.
+          pemerintah dalam memudahkan tugas administratif dalam proyek
+          intervensi langsung ke daerah yang rawan stunting.
         </p>
       </div>
     </main>

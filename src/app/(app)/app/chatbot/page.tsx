@@ -97,7 +97,7 @@ Semoga rencana makan ini bermanfaat untuk anak Anda!`,
   const [loading, setLoading] = useState(false);
   const [playing, setPlaying] = useState(false);
 
-  let animatedAnswer = useAnimatedText(answer);
+  const animatedAnswer = useAnimatedText(answer);
   // Ref for the ChatMessageList to scroll
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
 

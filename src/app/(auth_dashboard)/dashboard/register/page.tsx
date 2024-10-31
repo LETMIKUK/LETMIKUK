@@ -20,7 +20,7 @@ export default function Page() {
     setLoading(true);
 
     // Call an API route to validate the password and set the cookie
-    const res = await fetch("/api/app/register", {
+    const res = await fetch("/api/dashboard/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ fullName, email, password }),
