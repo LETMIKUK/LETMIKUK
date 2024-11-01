@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { verifyToken } from "./lib/jwt";
+import { createClient } from "next-sanity";
 
-export default function middleware(req: NextRequest) {
+export default async function middleware(req: NextRequest) {
   const { pathname, hostname } = req.nextUrl;
 
   // Master lock cookie check
@@ -47,6 +49,43 @@ export default function middleware(req: NextRequest) {
     if (appCookie && isAppAuthPage) {
       return NextResponse.redirect(new URL("/app", req.url));
     }
+
+    // if (appCookie) {
+    //   try {
+    //     // Verify the JWT token and get the user ID
+    //     const decodedToken = verifyToken(appCookie);
+    //     const userId = decodedToken.userId;
+
+    //     const client = createClient({
+    //       apiVersion:
+    //         process.env.NEXT_PUBLIC_SANITY_API_VERSION || "2024-10-26",
+    //       dataset: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+    //       projectId: process.env.NEXT_PUBLIC_SANITY_DATASET,
+    //       useCdn: true,
+    //       token: process.env.SANITY_TOKEN,
+    //     });
+    //     // Fetch the user's profile completion status from Sanity
+    //     const user = await client.fetch(
+    //       `*[_type == "appAccount" && _id == $id][0]{ isProfileComplete }`,
+    //       { id: userId }
+    //     );
+
+    //     // Redirect to complete-profile if profile is incomplete
+    //     if (
+    //       user &&
+    //       !user.isProfileComplete &&
+    //       pathname !== "/app/complete-profile"
+    //     ) {
+    //       return NextResponse.redirect(
+    //         new URL("/app/complete-profile", req.url)
+    //       );
+    //     }
+    //   } catch (error) {
+    //     console.error("Error in middleware:", error);
+    //     // Redirect to login in case of an error in token verification
+    //     return NextResponse.redirect(new URL("/app/login", req.url));
+    //   }
+    // }
   }
 
   // Handle /dashboard routes

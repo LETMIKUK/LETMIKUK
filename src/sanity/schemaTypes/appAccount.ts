@@ -111,5 +111,11 @@ export default defineType({
         "Wilayah tugas bagi petugas kesehatan untuk melacak perkembangan bayi di area tertentu.",
       hidden: ({ document }) => document?.role !== "health_officer",
     },
+    defineField({
+      name: "isProfileComplete",
+      title: "Informasi Profil Lengkap",
+      type: "boolean",
+      initialValue: false,
+    }),
   ],
 });

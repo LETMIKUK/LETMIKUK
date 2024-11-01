@@ -52,14 +52,14 @@ export async function POST(req: NextRequest) {
       fullName,
       email,
       hashedPassword,
-      role: "citizen", // Set the role or make it dynamic based on input
+      isProfileComplete: false,
       createdAt: new Date().toISOString(),
     };
 
     const user = await client.create(newUser);
 
     // Generate JWT token
-    const token = createToken(user._id, user.role);
+    const token = createToken(user._id);
 
     const response = NextResponse.json({ message: "OK" });
 
