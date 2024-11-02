@@ -26,7 +26,6 @@ export interface UserState {
   accountType: AccountType | null;
   personalInfo: PersonalInfo;
   motherInfo?: MotherInfo; // This is now optional, can be undefined for health officers
-  isVerified: boolean;
 }
 
 export type AccountType = "Mother" | "Health Officer" | null;

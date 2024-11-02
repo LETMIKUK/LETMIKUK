@@ -1,8 +1,16 @@
-// UserContext.tsx
-import React, { createContext, useState, useContext, ReactNode } from "react";
-import { UserState, UserContextType, ChildInfo } from "@/lib/types/user";
+"use client";
 
-// Define the initial state for the user context
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import { UserState, UserContextType, ChildInfo } from "@/lib/types/user";
+import { cookies } from "next/headers"; // Assume types are in a separate file
+// Fetch function from Sanity, adjust as necessary
+
 const initialState: UserState = {
   accountType: null,
   personalInfo: {
@@ -12,8 +20,7 @@ const initialState: UserState = {
     role: "",
     region: undefined,
   },
-  motherInfo: undefined, // Set to undefined initially for health officers
-  isVerified: false,
+  motherInfo: undefined,
 };
 
 // Create the context with the defined type
@@ -34,7 +41,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     setUser((prev) => ({
       ...prev,
       motherInfo: {
-        ...prev.motherInfo!, // Use non-null assertion since we assume it's defined when adding children
+        ...prev.motherInfo!,
         children: [...(prev.motherInfo?.children || []), childData],
       },
     }));
@@ -50,6 +57,56 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       },
     }));
   };
+
+  const getUserDetails = async () => {
+    const response = await fetch("/api/app/user", {
+      method: "GET",
+      credentials: "include", // Sends cookies with the request
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch user details");
+    }
+
+    return response.json();
+  };
+
+  useEffect(() => {
+    // Check if app_account_cookie exists
+    const fetchUserData = async () => {
+      // const cookieExists = cookies().get("app_account_cookie")?.value;
+      // if (cookieExists) {
+      try {
+        const response = await getUserDetails(); // Fetch user data from Sanity or your API
+        const { user: userData } = response;
+        setUser({
+          accountType: userData.role === "mother" ? "Mother" : "Health Officer",
+          personalInfo: {
+            fullName: userData.fullName,
+            email: userData.email,
+            nik: userData.role === "health_officer" ? userData.nik : undefined,
+            role: userData.role,
+            region: userData.assignedRegion,
+          },
+          motherInfo:
+            userData.role === "mother"
+              ? {
+                  isPregnant: userData.isPregnant,
+                  pregnancyStartDate:
+                    (userData.pregnancyStartDate &&
+                      new Date(userData.pregnancyStartDate)) ||
+                    undefined,
+                  children: userData.children,
+                }
+              : undefined,
+        });
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   return (
     <UserContext.Provider

@@ -19,6 +19,14 @@ export async function generateEmbedding({
   }
 }
 
+export function getPregnantDuration(date: Date) {
+  const today = new Date();
+  const lmp = date;
+  const years = today.getFullYear() - lmp.getFullYear();
+  const months = today.getMonth() - lmp.getMonth();
+  return `${years * 12 + months} bulan`;
+}
+
 // export function useAnimatedText({
 //   text,
 //   delimiter,

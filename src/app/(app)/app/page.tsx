@@ -5,7 +5,10 @@ import LetmikukLogo from "@/app/components/svg/LetmikukLogo";
 import LetmikukSymbolLogo from "@/app/components/svg/LetmikukSymbolLogo";
 import Sparkle from "@/app/components/svg/Sparkle";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useUser } from "@/lib/contexts/UserContext";
+import { getPregnantDuration } from "@/lib/helpers";
 import {
   Book,
   Calendar,
@@ -22,6 +25,8 @@ import {
 import Link from "next/link";
 
 export default function Page() {
+  const { user } = useUser();
+
   return (
     // placeholder app home
     // <div className="flex flex-col p-5 w-full justify-center items-center">
@@ -55,12 +60,19 @@ export default function Page() {
 
         <Settings className="text-muted-foreground" />
       </div>
-      <div className="bg-white flex flex-col p-5">
-        <p>Ryan Tobing</p>
-        <p className="text-sm text-muted-foreground">ryanft1505@gmail.com</p>
+      <div className="bg-white flex flex-col px-5 py-2">
+        <p>{user.personalInfo.fullName}</p>
         <p className="text-sm text-muted-foreground">
-          NIK: 2130 3184 0912 3134
+          {user.personalInfo.email}
         </p>
+        <Badge className="text-xs mt-1 bg-pink-100 text-pink-500 max-w-fit hover:bg-pink-200">
+          {user &&
+            (user.personalInfo.role === "mother"
+              ? (user.motherInfo?.pregnancyStartDate &&
+                  `${getPregnantDuration(new Date(user.motherInfo?.pregnancyStartDate))}`) ||
+                "Tanggal HTPT Belum dicantumkan"
+              : user.personalInfo.nik)}
+        </Badge>
         <div className="mt-5 gap-3 grid grid-cols-3">
           <Button
             className=" flex rounded-xl flex-col aspect-square w-full py-10 text-lg"
