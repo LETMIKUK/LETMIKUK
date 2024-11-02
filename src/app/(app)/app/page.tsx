@@ -7,8 +7,15 @@ import Sparkle from "@/app/components/svg/Sparkle";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useUser } from "@/lib/contexts/UserContext";
-import { getPregnantDuration } from "@/lib/helpers";
+import { getInitials, getPregnantDuration } from "@/lib/helpers";
 import {
   Book,
   Calendar,
@@ -18,14 +25,30 @@ import {
   ForkKnifeCrossed,
   HelpCircle,
   Home,
+  LogOut,
   Newspaper,
   Ruler,
   Settings,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
   const { user } = useUser();
+  const router = useRouter();
+  // api.ts
+  const logout = async () => {
+    const response = await fetch("/api/app/logout", {
+      method: "GET",
+      credentials: "include", // Ensures cookies are sent with the request
+    });
+
+    if (!response.ok) {
+      throw new Error("Gagal logout");
+    }
+
+    router.refresh();
+  };
 
   return (
     // placeholder app home
@@ -45,20 +68,41 @@ export default function Page() {
     //     </Button>
     //   </Link>
     // </div>
-    <div className="flex relative bg-white space-y-3 flex-col w-full">
+    <ScrollArea className="flex relative bg-white space-y-3 flex-col w-full">
       <div
         id="app-header"
         className="p-3 items-center shadow-sm flex flex-row bg-white justify-between"
       >
         <Avatar>
-          <AvatarFallback>O</AvatarFallback>
+          <AvatarFallback>
+            {getInitials(user.personalInfo.fullName)}
+          </AvatarFallback>
         </Avatar>
         <div className="flex justify-center items-center space-x-1">
           <LetmikukSymbolLogo className="max-w-6" />
           <LetmikukLogo className="max-w-24" />
         </div>
 
-        <Settings className="text-muted-foreground" />
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Settings className="text-muted-foreground" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="text-sm bg-white">
+            <DropdownMenuItem>
+              {user.personalInfo.role === "mother"
+                ? "Edit Profil Anak"
+                : "Edit Data Anak"}
+            </DropdownMenuItem>
+            <DropdownMenuItem className="hover:!text-red-500">
+              <button
+                className="flex items-center p-0 font-normal gap-0 gap-x-2 whitespace-nowrap [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
+                onClick={logout}
+              >
+                Logout <LogOut />
+              </button>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       <div className="bg-white flex flex-col px-5 py-2">
         <p>{user.personalInfo.fullName}</p>
@@ -73,7 +117,20 @@ export default function Page() {
                 "Tanggal HTPT Belum dicantumkan"
               : user.personalInfo.nik)}
         </Badge>
-        <div className="mt-5 gap-3 grid grid-cols-3">
+        <Link className="mt-5 mb-3" href={"/app/chatbot"}>
+          <Button
+            variant={"outline"}
+            className="w-full bg-white text-foreground mt-3 py-8 rounded-xl"
+          >
+            <GradientText
+              speed={5}
+              className="font-bold"
+              text="Tanya LETMIKUK AI"
+            />
+            <Sparkle />
+          </Button>
+        </Link>
+        <div className="gap-3 grid grid-cols-3">
           <Button
             className=" flex rounded-xl flex-col aspect-square w-full py-10 text-lg"
             variant={"outline"}
@@ -117,19 +174,6 @@ export default function Page() {
             <p className="text-xs text-wrap">Perpustakaan</p>
           </Button>
         </div>
-        <Link href={"/app/chatbot"}>
-          <Button
-            variant={"outline"}
-            className="w-full bg-white text-foreground mt-3 py-8 rounded-xl"
-          >
-            <GradientText
-              speed={5}
-              className="font-bold"
-              text="Tanya LETMIKUK AI"
-            />
-            <Sparkle />
-          </Button>
-        </Link>
       </div>
       <div className="absolute bottom-0 px-8 text-muted-foreground border-t bg-white flex-row justify-between shadow-sm py-5 flex w-full">
         <div className="flex flex-col justify-center items-center">
@@ -151,6 +195,6 @@ export default function Page() {
           <p className="text-xs">Bantuan</p>
         </div>
       </div>
-    </div>
+    </ScrollArea>
   );
 }

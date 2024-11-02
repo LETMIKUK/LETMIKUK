@@ -27,6 +27,16 @@ export function getPregnantDuration(date: Date) {
   return `${years * 12 + months} bulan`;
 }
 
+export function getInitials(fullName: string | undefined | null) {
+  if (typeof fullName === "string") {
+    const nameParts = fullName.split(" ");
+    const firstInitial = nameParts[0].charAt(0).toUpperCase();
+    const lastInitial = nameParts[nameParts.length - 1].charAt(0).toUpperCase();
+    return firstInitial + lastInitial;
+  }
+  return "U";
+}
+
 // export function useAnimatedText({
 //   text,
 //   delimiter,
