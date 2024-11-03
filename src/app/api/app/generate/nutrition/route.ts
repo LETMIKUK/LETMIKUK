@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
       });
 
       // Sanity query to fetch images by IDs
-      const imageQuery = `*[_type == "image" && _id in $ids]{ _id, url }`;
+      const imageQuery = `*[_type == "augmentImage" && id in $ids]{ id, image, description }`;
       imageDocs = await client.fetch(imageQuery, { ids: imageIds });
       console.log("imageDocs:", imageDocs);
     }

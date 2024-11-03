@@ -96,6 +96,7 @@ Semoga rencana makan ini bermanfaat untuk anak Anda!`,
   const [answer, setAnswer] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const [referenceImages, setReferenceImages] = useState<any>(null);
 
   const animatedAnswer = useAnimatedText(answer);
   // Ref for the ChatMessageList to scroll
@@ -230,6 +231,7 @@ Semoga rencana makan ini bermanfaat untuk anak Anda!`,
         });
       }
 
+      // setReferenceImages(); // Set state to hold images metadata
       // Final state reset once streaming is complete
       setPlaying(false); // Stop animation
       console.log("Final answer:", accumulatedAnswer); // Confirm final answer in console
