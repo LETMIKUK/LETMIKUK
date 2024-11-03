@@ -1,8 +1,8 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
 
 export default defineType({
-  name: "demografiBalitaProvinsi",
-  title: "Demografi Balita per Provinsi per Bulan",
+  name: "kesiapanPosyanduProvinsi",
+  title: "Data Kesiapan Posyandu per Provinsi per Bulan",
   type: "document",
   fields: [
     defineField({
