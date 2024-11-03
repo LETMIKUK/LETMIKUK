@@ -64,25 +64,6 @@ export default function Page() {
           </Alert>
         )}
 
-        {/* <Select>
-          <SelectTrigger>
-            <SelectValue placeholder="Akun Preset" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="hamil">Hamil</SelectItem>
-            <SelectItem value="3bulan">Bayi 3 bulan</SelectItem>
-            <SelectItem value="6bulan">Bayi 6 bulan</SelectItem>
-            <SelectItem value="1tahun">Bayi 1 tahun</SelectItem>
-            <SelectItem value="2tahun">Bayi 2 tahun</SelectItem>
-            <SelectItem value="3tahun">Bayi 3 tahun</SelectItem>
-            <SelectItem value="5tahun">Bayi 5 tahun</SelectItem>
-            <SelectItem value="9tahun">Anak 9 tahun</SelectItem>
-            <SelectItem value="12tahun">Anak 12 tahun</SelectItem>
-            <SelectItem value="15tahun">Anak 15 tahun</SelectItem>
-          </SelectContent>
-        </Select> */}
-
-        {/* Login Form */}
         <form
           onSubmit={handleLogin}
           className="flex flex-col items-center justify-center space-y-3"

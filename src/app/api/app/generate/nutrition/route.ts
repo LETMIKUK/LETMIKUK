@@ -49,37 +49,40 @@ export async function POST(request: NextRequest) {
 
     console.log("Pinecone query response:", pineconeResponse);
 
-    // Extract relevant context
-    const contextItems = pineconeResponse?.matches?.map(
-      (match) => match.metadata
+    // Extract the relevant chunks
+    const contextChunks = pineconeResponse?.matches?.map(
+      (match) => match?.metadata?.text
     );
-    console.log("Retrieved context items:", contextItems);
 
-    // Create context string to append to the prompt
-    const contextString = contextItems
-      ? contextItems
-          .map(
-            (item) =>
-              `Nama: ${item?.name}, Deskripsi: ${item?.description}, Nilai Gizi: ${JSON.stringify(item?.nutritional_value)}`
-          )
-          .join("\n")
-      : "";
+    console.log("contextChunks:", contextChunks);
 
-    console.log("Context string:", contextString);
+    // Combine the context chunks into a single string
+    let combinedContext = contextChunks?.join("\n\n");
 
+    // Truncate context if it exceeds a certain length
+    const maxContextLength = 1000; // Set a suitable limit based on token count
+    if (combinedContext && combinedContext?.length > maxContextLength) {
+      combinedContext = combinedContext?.slice(0, maxContextLength) + "..."; // Truncate and add ellipsis
+    }
+
+    console.log("combinedContext:", combinedContext);
+    if (!combinedContext) {
+      console.log("no context retrieved");
+    }
+    // Optionally filter or process the context chunks here if needed
     const stream = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
-          content: `Kamu adalah asisten AI yang bertugas menyusun rencana makan sehat untuk anak-anak Indonesia. 
-          Buatlah rencana yang mencakup sarapan, makan siang, dan makan malam. 
-          Pertimbangkan nilai gizi dan anggaran yang terjangkau untuk keluarga Indonesia. 
-          Gunakan bahan makanan umum dari database, terutama yang tinggi protein dan serat untuk mendukung pertumbuhan anak.`,
+          content: `Kamu adalah asisten AI bernama 'LETMIKUK AI' (Layanan Edukasi Terkait Malnutrisi dan Intervensi Kesehatan Untuk Keluarga) yang membantu ibu-ibu di Indonesia menjaga kesehatan dan nutrisi mereka serta anak-anak mereka, terutama yang sedang hamil atau menyusui. 
+      Berikan informasi yang relevan tentang gizi ibu dan anak, tips perawatan kehamilan dan menyusui, contoh resep bergizi, serta panduan untuk memantau pertumbuhan anak agar terhindar dari stunting atau kekurangan gizi. 
+      Fokuslah pada edukasi yang dapat membantu anak-anak bertumbuh secara normal sesuai usia mereka, serta berikan saran-saran sederhana dan mudah dipraktikkan di rumah.
+      Tolak pertanyaan yang tidak terkait dengan kesehatan ibu atau anak.`,
         },
         {
           role: "user",
-          content: `${contextString}\n\n${prompt}`, // Combine context with user prompt
+          content: `${combinedContext ? `konteks: ${combinedContext}` : ""}\n\n${prompt}`, // Combine context with user prompt
         },
       ],
       temperature: 1,
@@ -99,9 +102,7 @@ export async function POST(request: NextRequest) {
         for await (const chunk of stream) {
           if (chunk.choices[0].delta.content) {
             const partialContent = chunk.choices?.[0]?.delta?.content || "";
-            console.log("chunk:", chunk.choices[0].delta.content);
             const queue = encoder.encode(partialContent);
-            console.log("queue:", queue);
             fullResponse = fullResponse + partialContent;
             controller.enqueue(queue);
           }

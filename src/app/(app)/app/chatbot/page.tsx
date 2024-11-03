@@ -331,7 +331,7 @@ Semoga rencana makan ini bermanfaat untuk anak Anda!`,
       </ChatMessageList>
       <div className="sticky flex space-x-1 transition-all duration-300 items-center justify-center bottom-0 w-full bg-background z-10 p-2 shadow-md">
         <ChatInput
-          placeholder="Tanya ChatMIKUK sini..."
+          placeholder="Tanya LETMIKUK AI sini..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
           disabled={loading} // Disable input while loading

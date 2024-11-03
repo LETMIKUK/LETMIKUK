@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import { UserState, UserContextType, ChildInfo } from "@/lib/types/user";
 import { cookies } from "next/headers"; // Assume types are in a separate file
+import { useRouter } from "next/navigation";
 // Fetch function from Sanity, adjust as necessary
 
 const initialState: UserState = {
@@ -29,16 +30,24 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [user, setUser] = useState<UserState>(initialState);
+  const [user, setUser] = useState<UserState | null | any>(initialState);
+  const router = useRouter();
 
   // Helper function to update user info
   const updateUser = (newInfo: Partial<UserState>) => {
-    setUser((prev) => ({ ...prev, ...newInfo }));
+    if (user === null) {
+      return;
+    }
+    setUser((prev: any) => ({ ...prev, ...newInfo }));
   };
 
   // Helper function to add a child to the children array in motherInfo
   const addChild = (childData: ChildInfo) => {
-    setUser((prev) => ({
+    if (!user) {
+      return;
+    }
+
+    setUser((prev: any) => ({
       ...prev,
       motherInfo: {
         ...prev.motherInfo!,
@@ -49,7 +58,10 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 
   // Function to initialize motherInfo when a mother account is created
   const initializeMotherInfo = () => {
-    setUser((prev) => ({
+    if (!user) {
+      return;
+    }
+    setUser((prev: any) => ({
       ...prev,
       motherInfo: {
         isPregnant: false,
@@ -78,39 +90,67 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       // if (cookieExists) {
       try {
         const response = await getUserDetails(); // Fetch user data from Sanity or your API
-        const { user: userData } = response;
-        setUser({
-          accountType: userData.role === "mother" ? "Mother" : "Health Officer",
-          personalInfo: {
-            fullName: userData.fullName,
-            email: userData.email,
-            nik: userData.role === "health_officer" ? userData.nik : undefined,
-            role: userData.role,
-            region: userData.assignedRegion,
-          },
-          motherInfo:
-            userData.role === "mother"
-              ? {
-                  isPregnant: userData.isPregnant,
-                  pregnancyStartDate:
-                    (userData.pregnancyStartDate &&
-                      new Date(userData.pregnancyStartDate)) ||
-                    undefined,
-                  children: userData.children,
-                }
-              : undefined,
-        });
+
+        if (response.ok) {
+          const { user: userData } = response;
+          setUser({
+            accountType:
+              userData.role === "mother" ? "Mother" : "Health Officer",
+            personalInfo: {
+              fullName: userData.fullName,
+              email: userData.email,
+              nik:
+                userData.role === "health_officer" ? userData.nik : undefined,
+              role: userData.role,
+              region: userData.assignedRegion,
+            },
+            motherInfo:
+              userData.role === "mother"
+                ? {
+                    isPregnant: userData.isPregnant,
+                    pregnancyStartDate:
+                      (userData.pregnancyStartDate &&
+                        new Date(userData.pregnancyStartDate)) ||
+                      undefined,
+                    children: userData.children,
+                  }
+                : undefined,
+          });
+        } else {
+          setUser(null); // Clear user state on failed fetch
+        }
       } catch (error) {
         console.error("Failed to fetch user data:", error);
       }
     };
+    return () => {
+      if (!user) {
+        fetchUserData();
+      }
+    };
+  }, [user]);
 
-    fetchUserData();
-  }, []);
+  const logout = async () => {
+    try {
+      const response = await fetch("/api/app/logout", {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        setUser(null); // Clear user state after logout
+        router.push("/login"); // Redirect to login page
+      } else {
+        throw new Error("Failed to log out");
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   return (
     <UserContext.Provider
-      value={{ user, updateUser, addChild, initializeMotherInfo }}
+      value={{ user, updateUser, addChild, initializeMotherInfo, logout }}
     >
       {children}
     </UserContext.Provider>

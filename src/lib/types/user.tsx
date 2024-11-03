@@ -35,4 +35,5 @@ export interface UserContextType {
   updateUser: (newInfo: Partial<UserState>) => void;
   addChild: (childData: ChildInfo) => void;
   initializeMotherInfo: () => void; // Ensure this function is included in the context type
+  logout: () => void; // Ensure this function is included in the context type
 }

@@ -8,10 +8,12 @@ export async function generateEmbedding({
   text: string;
 }) {
   try {
+    console.log("input to be embed:", text);
     const response = await openai.embeddings.create({
       model: "text-embedding-ada-002",
       input: text,
     });
+    console.log("embedded prompt:", response.data[0].embedding);
     return response.data[0].embedding;
   } catch (error) {
     console.error("Error generating embedding:", error);
