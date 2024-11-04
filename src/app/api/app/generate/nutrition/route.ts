@@ -7,14 +7,48 @@ import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 import { apiVersion, dataset, projectId } from "@/sanity/env";
 import { createClient } from "next-sanity";
+import { UserState } from "@/lib/types/user";
 
+function extractRelevantUserContext(userProfile: UserState): string {
+  const { personalInfo, motherInfo } = userProfile;
+  let context = `Nama user: ${personalInfo.fullName}`;
+
+  if (personalInfo.role === "Mother" && motherInfo) {
+    context += `, Sedang Hamil: ${motherInfo.isPregnant ? "Ya" : "Tidak"}`;
+
+    if (motherInfo.isPregnant && motherInfo.pregnancyStartDate) {
+      const pregnancyMonths =
+        motherInfo.pregnancyMonths ||
+        Math.floor(
+          (new Date().getTime() - motherInfo.pregnancyStartDate.getTime()) /
+            (1000 * 60 * 60 * 24 * 30)
+        );
+      context += `, Lama Kehamilan: ${pregnancyMonths} bulan`;
+    }
+
+    if (motherInfo.children.length > 0) {
+      const childrenInfo = motherInfo.children
+        .map((child) => {
+          const ageMonths = Math.floor(
+            (new Date().getTime() - child.birthDate.getTime()) /
+              (1000 * 60 * 60 * 24 * 30)
+          );
+          return `${child.name} (${child.gender}), Umur: ${ageMonths} bulan${child.allergies ? `, Alergi: ${child.allergies}, Catatan Anak: ${child.notes}` : ""}`;
+        })
+        .join("; ");
+      context += `, Anak-Anak: ${childrenInfo}`;
+    }
+  }
+
+  return context;
+}
 // nutrition chat for app
 
 export async function POST(request: NextRequest) {
   const json = await request.json();
   console.log("request body:", request.body);
   console.log("request json:", json);
-  const { prompt } = json;
+  const { prompt, userProfile } = json;
 
   if (
     !process.env.SANITY_TOKEN ||
@@ -135,9 +169,9 @@ export async function POST(request: NextRequest) {
 
     console.log("Pinecone query response:", pineconeResponse);
 
-    const top3Results = pineconeResponse?.matches?.slice(0, 4);
+    const top5Results = pineconeResponse?.matches?.slice(0, 6);
 
-    const imageIds = top3Results
+    const imageIds = top5Results
       ?.filter((result) => result?.metadata?.has_image)
       ?.flatMap((result) => result?.metadata?.image_reference);
     let imageDocs = [];
@@ -177,20 +211,23 @@ export async function POST(request: NextRequest) {
     if (!combinedContext) {
       console.log("no context retrieved");
     }
+
+    const userAbout = extractRelevantUserContext(userProfile);
+    console.log("userAbout:", userAbout);
     // Optionally filter or process the context chunks here if needed
     const stream = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
-          content: `Kamu adalah asisten AI bernama 'LETMIKUK AI' (Layanan Edukasi Terkait Malnutrisi dan Intervensi Kesehatan Untuk Keluarga) yang membantu ibu-ibu di Indonesia menjaga kesehatan dan nutrisi mereka serta anak-anak mereka, terutama yang sedang hamil atau menyusui.
-      Berikan informasi yang relevan tentang gizi ibu dan anak, tips perawatan kehamilan dan menyusui, contoh resep bergizi, serta panduan untuk memantau pertumbuhan anak agar terhindar dari stunting atau kekurangan gizi.
+          content: `Kamu adalah asisten AI yang pintar dan amat ramah bernama 'LETMIKUK AI' (Layanan Edukasi Terkait Malnutrisi dan Intervensi Kesehatan Untuk Keluarga) yang membantu ibu-ibu di Indonesia menjaga kesehatan dan nutrisi mereka serta anak-anak mereka, terutama yang sedang hamil atau menyusui.
+      Sapalah pengguna dan dengan ramah fokus untuk menjawab sesuai permintaan user sebisa mungkin menggunakan informasi dari konteks database tapi apabila konteks database tidak relevan untuk menjawab, abaikan dan gunakan pengetahuan umum anda sebagai AI. Saat menjawab melalui informasi konteks database, sebut juga sumber informasinya. Rata-rata sumber adalah dari ayosehat (program & kampanye kesehatan oleh kementerian kesehatan Indonesia). Biasanya kamu akan menjawab seperti memberikan informasi yang relevan tentang gizi ibu dan anak, tips perawatan kehamilan dan menyusui, contoh resep bergizi, serta panduan untuk memantau pertumbuhan anak agar terhindar dari stunting atau kekurangan gizi.
       Fokuslah pada edukasi yang dapat membantu anak-anak bertumbuh secara normal sesuai usia mereka, serta berikan saran-saran sederhana dan mudah dipraktikkan di rumah.
-      Tolak pertanyaan yang tidak terkait dengan kesehatan ibu atau anak.`,
+      Apabila disuruh memberi contoh resep, hindari membuat sendiri kecuali kalau di konteks database tidak ada resep yg sesuai target umur. Apabila konteks resep ada has_image: true, maka gak usah tulis ulang bahan dan langkah-langkahnya karena sistem akan mengirimnya ke user langsung. Biasakan menanya apabila ada lain yang bisa dibantu mengenai topik pertanyaan atau apabila memberi contoh resep, tanya apakah resepnya ingin ditulis langsung (mungkin user gak mau resep dalam bentuk foto).Tolak pertanyaan yang tidak terkait dengan kesehatan ibu atau anak.`,
         },
         {
           role: "user",
-          content: `${combinedContext ? `konteks: ${combinedContext}` : ""}\n\n${prompt}`, // Combine context with user prompt
+          content: `${combinedContext ? `konteks latar belakang user: ${userAbout ? userAbout : "data latar belakang user kosong"}\n\nkonteks database: ${combinedContext}` : ""}\n\n${prompt}`, // Combine context with user prompt
         },
       ],
       temperature: 1,

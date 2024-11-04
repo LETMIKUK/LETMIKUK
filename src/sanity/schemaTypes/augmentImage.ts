@@ -31,6 +31,33 @@ export default defineType({
       type: "string",
       description: "Image description.",
     }),
+    defineField({
+      name: "imageType",
+      title: "Tipe gambar",
+      type: "string",
+      options: {
+        list: [
+          { title: "Informasi Kesehatan", value: "health_information" },
+          { title: "Contoh Resep", value: "recipe_example" },
+          { title: "Grafik Statistik atau Chart", value: "statistic" },
+        ],
+      },
+    }),
+    defineField({
+      name: "metadata",
+      title: "Metadata",
+      type: "array",
+      of: [
+        {
+          type: "object",
+          fields: [
+            defineField({ name: "md_1", title: "Metadata 1", type: "string" }),
+            defineField({ name: "md_2", title: "Metadata 2", type: "string" }),
+            defineField({ name: "md_3", title: "Metadata 3", type: "string" }),
+          ],
+        },
+      ],
+    }),
   ],
 
   preview: {
