@@ -29,7 +29,7 @@ Proyek ini dikembangkan menggunakan Generative AI dan Machine Learning untuk men
 
 - **Next.js** sebagai framework utama untuk pengembangan web.
 - **Python Machine Learning** untuk deteksi stunting dan prediksi kebutuhan daerah.
-- **Generative AI (GPT-4o)** untuk menghasilkan rencana nutrisi dan resep untuk orang tua.
+- **Generative AI (GPT-4o-mini)** untuk menghasilkan rencana nutrisi dan resep untuk orang tua.
 - **Sanity CMS** untuk mengelola konten yang dinamis dan data.
 <!-- - **Midtrans** sebagai sistem pembayaran untuk layanan tambahan yang memerlukan donasi atau pembelian makanan. -->
 
