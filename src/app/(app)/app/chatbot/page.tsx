@@ -26,6 +26,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useUser } from "@/lib/contexts/UserContext";
 
 export default function Page() {
   const [input, setInput] = useState("");
@@ -109,6 +110,8 @@ Semoga rencana makan ini bermanfaat untuk anak Anda!`,
   const [playing, setPlaying] = useState(false);
   const [referenceImages, setReferenceImages] = useState<any>(null);
 
+  const { user } = useUser();
+
   const animatedAnswer = useAnimatedText(answer);
   // Ref for the ChatMessageList to scroll
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
@@ -131,7 +134,7 @@ Semoga rencana makan ini bermanfaat untuk anak Anda!`,
       const response = await fetch("/api/app/generate/nutrition", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: input }),
+        body: JSON.stringify({ prompt: input, userProfile: user }),
       });
 
       if (!response.body) throw new Error("Response body is empty");
@@ -246,43 +249,44 @@ Semoga rencana makan ini bermanfaat untuk anak Anda!`,
                       ? animatedAnswer
                       : message.text}
                   </Markdown>
-                  {referenceImages?.length > 0 && (
-                    <ScrollArea className="w-full">
-                      <div className="w-max flex space-x-2 p-3">
-                        {referenceImages.map((img: any, idx: number) => (
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <div className="overflow-hidden rounded-lg">
-                                <img
-                                  key={img.id ? img.id : idx}
-                                  src={urlFor(img.image).url()}
-                                  alt={img.description}
-                                  className="w-20 h-20 object-cover"
-                                />
-                              </div>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-[320px]">
-                              <DialogHeader>
-                                <DialogTitle className="py-1">
-                                  {img.description}
-                                </DialogTitle>
-                                <DialogDescription className="w-full h-full overflow-hidden rounded-lg">
+                  {index === messages.length - 1 &&
+                    referenceImages?.length > 0 && (
+                      <ScrollArea className="w-full">
+                        <div className="w-max flex space-x-2 p-3">
+                          {referenceImages.map((img: any, idx: number) => (
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <div className="overflow-hidden rounded-lg">
                                   <img
                                     key={img.id ? img.id : idx}
                                     src={urlFor(img.image).url()}
                                     alt={img.description}
-                                    className="w-full h-full object-cover"
+                                    className="w-20 h-20 object-cover"
                                   />
-                                </DialogDescription>
-                              </DialogHeader>
+                                </div>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-[320px]">
+                                <DialogHeader>
+                                  <DialogTitle className="py-1">
+                                    {img.description}
+                                  </DialogTitle>
+                                  <DialogDescription className="w-full h-full overflow-hidden rounded-lg">
+                                    <img
+                                      key={img.id ? img.id : idx}
+                                      src={urlFor(img.image).url()}
+                                      alt={img.description}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  </DialogDescription>
+                                </DialogHeader>
 
-                              <DialogFooter></DialogFooter>
-                            </DialogContent>
-                          </Dialog>
-                        ))}
-                      </div>
-                    </ScrollArea>
-                  )}
+                                <DialogFooter></DialogFooter>
+                              </DialogContent>
+                            </Dialog>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                    )}
                 </>
               )}
             </ChatBubbleMessage>
