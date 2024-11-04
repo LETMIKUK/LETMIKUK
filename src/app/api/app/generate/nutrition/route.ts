@@ -140,9 +140,9 @@ export async function POST(request: NextRequest) {
     const imageIds = top3Results
       ?.filter((result) => result?.metadata?.has_image)
       ?.flatMap((result) => result?.metadata?.image_reference);
-
     let imageDocs = [];
-    if (imageIds) {
+
+    if (imageIds && imageIds.length > 0) {
       const client = createClient({
         apiVersion,
         dataset,
@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
       // Sanity query to fetch images by IDs
       const imageQuery = `*[_type == "augmentImage" && id in $ids]{ id, image, description }`;
       imageDocs = await client.fetch(imageQuery, { ids: imageIds });
-      console.log("imageDocs:", imageDocs);
+      console.log("Fetched imageDocs:", imageDocs);
     }
 
     // Extract the relevant chunks
@@ -205,8 +205,15 @@ export async function POST(request: NextRequest) {
 
     let fullResponse = "";
     const encoder = new TextEncoder();
+
+    // Create a ReadableStream that first sends images and then streams text
     const readableStream = new ReadableStream({
       async start(controller) {
+        // 1. Send initial image data as JSON
+        const imageJSON = JSON.stringify({ images: imageDocs });
+        controller.enqueue(encoder.encode(imageJSON + "\n\n"));
+
+        // 2. Stream text content
         for await (const chunk of stream) {
           if (chunk.choices[0].delta.content) {
             const partialContent = chunk.choices?.[0]?.delta?.content || "";
@@ -222,8 +229,11 @@ export async function POST(request: NextRequest) {
     console.log("fullResponse:", fullResponse);
 
     return new NextResponse(readableStream, {
-      headers: { "Content-Type": "text/event-stream" },
+      headers: { "Content-Type": "multipart/mixed; boundary=boundary" },
     });
+    // return new NextResponse(readableStream, {
+    //   headers: { "Content-Type": "text/event-stream" },
+    // });
   } catch (error) {
     console.error("Error:", error);
     return NextResponse.json(

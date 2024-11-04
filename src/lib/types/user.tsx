@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from "react";
+
 // types.ts
 export interface ChildInfo {
   name: string;
@@ -36,4 +38,6 @@ export interface UserContextType {
   addChild: (childData: ChildInfo) => void;
   initializeMotherInfo: () => void; // Ensure this function is included in the context type
   logout: () => void; // Ensure this function is included in the context type
+  // loggedIn: boolean;
+  // setLoggedIn: Dispatch<SetStateAction<boolean>>;
 }

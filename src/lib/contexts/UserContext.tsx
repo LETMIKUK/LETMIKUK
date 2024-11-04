@@ -30,7 +30,9 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [user, setUser] = useState<UserState | null | any>(initialState);
+  const [user, setUser] = useState<UserState | null | any>(null);
+  const [isFetching, setIsFetching] = useState(false);
+
   const router = useRouter();
 
   // Helper function to update user info
@@ -80,7 +82,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       throw new Error("Failed to fetch user details");
     }
 
-    return response.json();
+    return await response.json();
   };
 
   useEffect(() => {
@@ -88,47 +90,47 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     const fetchUserData = async () => {
       // const cookieExists = cookies().get("app_account_cookie")?.value;
       // if (cookieExists) {
+      // nvm cookies cant be accessed because we set to httpOnly, its ok
+      setIsFetching(true);
       try {
-        const response = await getUserDetails(); // Fetch user data from Sanity or your API
+        console.log("client fetch user");
+        const { user: userData } = await getUserDetails(); // Fetch user data from Sanity or your API
 
-        if (response.ok) {
-          const { user: userData } = response;
-          setUser({
-            accountType:
-              userData.role === "mother" ? "Mother" : "Health Officer",
-            personalInfo: {
-              fullName: userData.fullName,
-              email: userData.email,
-              nik:
-                userData.role === "health_officer" ? userData.nik : undefined,
-              role: userData.role,
-              region: userData.assignedRegion,
-            },
-            motherInfo:
-              userData.role === "mother"
-                ? {
-                    isPregnant: userData.isPregnant,
-                    pregnancyStartDate:
-                      (userData.pregnancyStartDate &&
-                        new Date(userData.pregnancyStartDate)) ||
-                      undefined,
-                    children: userData.children,
-                  }
-                : undefined,
-          });
-        } else {
-          setUser(null); // Clear user state on failed fetch
-        }
+        console.log("userData:", userData);
+        setUser({
+          accountType: userData.role === "mother" ? "Mother" : "Health Officer",
+          personalInfo: {
+            fullName: userData.fullName,
+            email: userData.email,
+            nik: userData.role === "health_officer" ? userData.nik : undefined,
+            role: userData.role,
+            region: userData.assignedRegion,
+          },
+          motherInfo:
+            userData.role === "mother"
+              ? {
+                  isPregnant: userData.isPregnant,
+                  pregnancyStartDate:
+                    (userData.pregnancyStartDate &&
+                      new Date(userData.pregnancyStartDate)) ||
+                    undefined,
+                  children: userData.children,
+                }
+              : undefined,
+        });
       } catch (error) {
         console.error("Failed to fetch user data:", error);
+        setUser(null);
+      } finally {
+        setIsFetching(false);
       }
     };
     return () => {
-      if (!user) {
+      if (user === null && !isFetching) {
         fetchUserData();
       }
     };
-  }, [user]);
+  }, []);
 
   const logout = async () => {
     try {
@@ -138,6 +140,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       });
 
       if (response.ok) {
+        // setLoggedIn(false);
         setUser(null); // Clear user state after logout
         router.push("/login"); // Redirect to login page
       } else {
@@ -150,7 +153,13 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 
   return (
     <UserContext.Provider
-      value={{ user, updateUser, addChild, initializeMotherInfo, logout }}
+      value={{
+        user,
+        updateUser,
+        addChild,
+        initializeMotherInfo,
+        logout,
+      }}
     >
       {children}
     </UserContext.Provider>

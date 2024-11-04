@@ -12,7 +12,10 @@ export async function GET() {
     );
   }
 
+  console.log("checking cookie");
+
   const appCookie = cookies().get("app_account_cookie")?.value;
+  console.log("appCookie:", appCookie);
   if (!appCookie) {
     return NextResponse.json(
       { message: "Missing app auth cookie" },
@@ -34,11 +37,14 @@ export async function GET() {
   });
 
   try {
+    console.log("fetching sanity doc");
+
     const user = await client.fetch(
       `*[_type == "appAccount" && _id == $userId][0]`,
       { userId }
     );
 
+    console.log("sanity user:", user);
     return NextResponse.json({ message: "OK", user: user }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ message: "Error", error }, { status: 500 });

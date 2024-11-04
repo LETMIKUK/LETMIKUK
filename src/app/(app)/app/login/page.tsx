@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useUser } from "@/lib/contexts/UserContext";
 
 export default function Page() {
   const [email, setEmail] = useState<string>("");
