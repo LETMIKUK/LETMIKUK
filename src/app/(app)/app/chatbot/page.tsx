@@ -15,6 +15,17 @@ import { useEffect, useRef, useState } from "react";
 import Markdown from "react-markdown";
 import { useAnimatedText } from "@/lib/hooks/useAnimatedText";
 import Link from "next/link";
+import { urlFor } from "@/sanity/lib/image";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export default function Page() {
   const [input, setInput] = useState("");
@@ -96,6 +107,7 @@ Semoga rencana makan ini bermanfaat untuk anak Anda!`,
   const [answer, setAnswer] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const [referenceImages, setReferenceImages] = useState<any>(null);
 
   const animatedAnswer = useAnimatedText(answer);
   // Ref for the ChatMessageList to scroll
@@ -106,80 +118,6 @@ Semoga rencana makan ini bermanfaat untuk anak Anda!`,
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, answer, loading]);
 
-  // const handleSendMessage = async () => {
-  //   if (!input || loading) return;
-
-  //   const userMessage = { sender: "user", text: input };
-  //   setMessages((prev) => [...prev, userMessage]);
-  //   setInput(""); // Clear input
-  //   setMessages((prev) => [...prev, { sender: "ai", text: "" }]);
-
-  //   setLoading(true);
-  //   console.log("loading before try:", loading);
-
-  //   setAnswer(""); // Initialise answer as empty
-  //   console.log("answer before try:", answer);
-
-  //   try {
-  //     const response: any = await fetch("/api/generate/app/nutrition", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({ prompt: input }),
-  //     });
-
-  //     const reader = response.body.getReader();
-  //     const decoder = new TextDecoder();
-  //     let done = false;
-
-  //     setLoading(false);
-
-  //     while (!done) {
-  //       const { value, done: readerDone } = await reader.read();
-  //       done = readerDone;
-
-  //       const chunk = decoder.decode(value || new Uint8Array(), {
-  //         stream: true,
-  //       });
-  //       setAnswer((prev) => {
-  //         console.log("answer:", prev + chunk);
-  //         return (prev || "") + chunk;
-  //       }); // Stream chunk into answer
-
-  //       if (!playing) setPlaying(true); // Start animation if not playing
-  //     }
-
-  //     // Once done, update message with the final answer and reset states
-  //     setMessages((prev) => {
-  //       const updatedMessages = [...prev];
-  //       updatedMessages[updatedMessages.length - 1] = {
-  //         ...updatedMessages[updatedMessages.length - 1],
-  //         text: answer, // Finalised answer content
-  //       };
-  //       console.log("final messages:", messages);
-
-  //       return updatedMessages;
-  //     });
-
-  //     setPlaying((prev) => {
-  //       console.log("final playing:", !prev);
-  //       return false;
-  //     });
-
-  //     // setAnswer(""); // Reset answer
-  //     // console.log("answer:", answer);
-  //     // setPlaying(false); // Stop animation
-  //   } catch (error) {
-  //     console.error("Error during streaming:", error);
-  //     setMessages((prev) => [
-  //       ...prev,
-  //       { sender: "ai", text: "An error occurred. Please try again." },
-  //     ]);
-
-  //     setAnswer("");
-
-  //     setPlaying(false);
-  //   }
-  // };
   const handleSendMessage = async () => {
     if (!input || loading) return;
 
@@ -196,30 +134,36 @@ Semoga rencana makan ini bermanfaat untuk anak Anda!`,
         body: JSON.stringify({ prompt: input }),
       });
 
-      if (!response.body) {
-        throw "error: response body empty";
-      }
+      if (!response.body) throw new Error("Response body is empty");
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-      let done = false;
-      let accumulatedAnswer = ""; // Local variable to track answer
-
+      let accumulatedAnswer = "";
       setLoading(false);
-      setPlaying(true); // Start animation
 
-      while (!done) {
-        const { value, done: readerDone } = await reader.read();
-        done = readerDone;
+      // Step 1: Read the initial image JSON block
+      const { value: imageChunk, done: imageDone } = await reader.read();
+      const initialChunk = decoder.decode(imageChunk || new Uint8Array());
+
+      // Try parsing as JSON for images
+      try {
+        const { images } = JSON.parse(initialChunk.split("\n\n")[0]);
+        setReferenceImages(images); // Set images state for rendering
+      } catch (error) {
+        console.error("Error parsing initial image JSON:", error);
+      }
+
+      // Step 2: Stream text response
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
 
         const chunk = decoder.decode(value || new Uint8Array(), {
           stream: true,
         });
         accumulatedAnswer += chunk;
+        setAnswer(accumulatedAnswer);
 
-        setAnswer(accumulatedAnswer); // Update answer state for debug, optional
-
-        // Update the last AI message in real-time as answer accumulates
         setMessages((prev) => {
           const updatedMessages = [...prev];
           updatedMessages[updatedMessages.length - 1] = {
@@ -230,9 +174,7 @@ Semoga rencana makan ini bermanfaat untuk anak Anda!`,
         });
       }
 
-      // Final state reset once streaming is complete
-      setPlaying(false); // Stop animation
-      console.log("Final answer:", accumulatedAnswer); // Confirm final answer in console
+      setPlaying(false);
     } catch (error) {
       console.error("Error during streaming:", error);
       setMessages((prev) => [
@@ -285,7 +227,7 @@ Semoga rencana makan ini bermanfaat untuk anak Anda!`,
                 fallback={message.sender === "ai" ? "AI" : "P"}
               />
             )}
-            {/* New Answer
+
             <ChatBubbleMessage
               className={`${
                 message.sender === "ai" ? "" : "bg-secondary ml-2 rounded-lg"
@@ -298,30 +240,50 @@ Semoga rencana makan ini bermanfaat untuk anak Anda!`,
                   <GradientAIBarsContainer barCount={5} />
                 </div>
               ) : (
-                <Markdown className="text-foreground animate-fade-in">
-                  {index === messages.length - 1 && playing
-                    ? animatedText
-                    : message.text}
-                </Markdown>
-              )}
-            </ChatBubbleMessage> */}
-            <ChatBubbleMessage
-              className={`${
-                message.sender === "ai" ? "" : "bg-secondary ml-2 rounded-lg"
-              } ${loading && index === messages.length - 1 ? "animate-fade-in" : ""}`}
-            >
-              {loading &&
-              index === messages.length - 1 &&
-              message.sender === "ai" ? (
-                <div className="w-full animate-fade-in">
-                  <GradientAIBarsContainer barCount={5} />
-                </div>
-              ) : (
-                <Markdown className="text-foreground animate-fade-in">
-                  {index === messages.length - 1 && playing
-                    ? animatedAnswer
-                    : message.text}
-                </Markdown>
+                <>
+                  <Markdown className="text-foreground animate-fade-in">
+                    {index === messages.length - 1 && playing
+                      ? animatedAnswer
+                      : message.text}
+                  </Markdown>
+                  {referenceImages?.length > 0 && (
+                    <ScrollArea className="w-full">
+                      <div className="w-max flex space-x-2 p-3">
+                        {referenceImages.map((img: any, idx: number) => (
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <div className="overflow-hidden rounded-lg">
+                                <img
+                                  key={img.id ? img.id : idx}
+                                  src={urlFor(img.image).url()}
+                                  alt={img.description}
+                                  className="w-20 h-20 object-cover"
+                                />
+                              </div>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-[320px]">
+                              <DialogHeader>
+                                <DialogTitle className="py-1">
+                                  {img.description}
+                                </DialogTitle>
+                                <DialogDescription className="w-full h-full overflow-hidden rounded-lg">
+                                  <img
+                                    key={img.id ? img.id : idx}
+                                    src={urlFor(img.image).url()}
+                                    alt={img.description}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </DialogDescription>
+                              </DialogHeader>
+
+                              <DialogFooter></DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  )}
+                </>
               )}
             </ChatBubbleMessage>
           </ChatBubble>
@@ -331,7 +293,7 @@ Semoga rencana makan ini bermanfaat untuk anak Anda!`,
       </ChatMessageList>
       <div className="sticky flex space-x-1 transition-all duration-300 items-center justify-center bottom-0 w-full bg-background z-10 p-2 shadow-md">
         <ChatInput
-          placeholder="Tanya ChatMIKUK sini..."
+          placeholder="Tanya LETMIKUK AI sini..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
           disabled={loading} // Disable input while loading

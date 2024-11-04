@@ -6,6 +6,7 @@ import LetmikukSymbolLogo from "./components/svg/LetmikukSymbolLogo";
 import { BackgroundLines } from "@/components/ui/background-lines";
 import { ArrowDown } from "lucide-react";
 import ScrollButton from "./components/ScrollButton";
+import RoundStar from "./components/svg/RoundStar";
 
 export default function Home() {
   return (
@@ -73,6 +74,44 @@ export default function Home() {
           pemerintah dalam memudahkan tugas administratif dalam proyek
           intervensi langsung ke daerah yang rawan stunting.
         </p>
+      </div>
+      <div className="min-h-screen flex flex-col justify-center items-center w-full p-10">
+        <h2 className="mb-10" id="apa-itu-letmikuk">
+          <Link href="/#apa-itu-letmikuk">
+            <Button className="font-medium text-5xl p-0" variant={"link"}>
+              <GradientText
+                text="Tim LETMIKUK"
+                className="!font-bold"
+                speed={5}
+              />
+            </Button>
+          </Link>
+        </h2>
+        <div className="w-full graph-paper py-5 gap-x-10 rounded-full place-items-center grid max-md:gap-y-5 max-md:grid-rows-3 md:grid-cols-3">
+          <div className="max-w-56 text-center">
+            <RoundStar src={"/images/avatar_felix.jpeg"} />
+            <h3 className="text-3xl font-medium">Felixx Colin Lianto</h3>
+            <p className="text-muted-foreground text-sm text-center">
+              BTEC HND Computing | Juni 2024 | UniSadhuGuna International
+              College BSD
+            </p>
+          </div>
+          <div className="max-w-56 text-center">
+            <RoundStar src={"/images/avatar_ryan.jpeg"} />
+            <h3 className="text-3xl font-medium">Ryan Ferdinand Tobing</h3>
+            <p className="text-muted-foreground text-sm text-center">
+              BTEC HND Computing | Juni 2024 | UniSadhuGuna International
+              College BSD
+            </p>
+          </div>
+          <div className="max-w-56 text-center">
+            <RoundStar />
+            <h3 className="text-3xl font-medium">Ahmad Syafiq Hartono</h3>
+            <p className="text-muted-foreground text-sm text-center">
+              S1 Computer Science | 2025 | BINUS University Kemanggisan
+            </p>
+          </div>
+        </div>
       </div>
     </main>
   );
