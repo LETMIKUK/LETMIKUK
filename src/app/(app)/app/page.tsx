@@ -5,7 +5,18 @@ import LetmikukLogo from "@/app/components/svg/LetmikukLogo";
 import LetmikukSymbolLogo from "@/app/components/svg/LetmikukSymbolLogo";
 import Sparkle from "@/app/components/svg/Sparkle";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useUser } from "@/lib/contexts/UserContext";
+import { getInitials, getPregnantDuration } from "@/lib/helpers";
 import {
   Book,
   Calendar,
@@ -15,53 +26,93 @@ import {
   ForkKnifeCrossed,
   HelpCircle,
   Home,
+  Loader,
+  LogOut,
   Newspaper,
   Ruler,
   Settings,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
+  const { user, logout } = useUser();
+
+  console.log("user:", user);
+
+  if (!user) {
+    return (
+      <div className="flex items-center w-full space-y-3 p-5 flex-col justify-center h-full">
+        <p>Fetching user...</p>
+        <Loader className="animate-spin" />
+      </div>
+    );
+  }
+
   return (
-    // placeholder app home
-    // <div className="flex flex-col p-5 w-full justify-center items-center">
-    //   <div className="space-y-3 items-center justify-center flex flex-col ">
-    //     <h1 className="text-3xl max-w-64 flex-1 h-full font-bold">
-    //       <LetmikukLogo />
-    //     </h1>
-    //     <p className="text-sm animate-pulse max-w-64 text-center">
-    //       Aplikasi untuk merekam pertumbuhan anak dan keperluan nutrisi
-    //     </p>
-    //   </div>
-    //   <Link href="/app/chatbot">
-    //     <Button variant={"outline"} className="mt-10">
-    //       Mulai
-    //       <ArrowRight />
-    //     </Button>
-    //   </Link>
-    // </div>
-    <div className="flex relative bg-white space-y-3 flex-col w-full">
+    <ScrollArea className="flex relative bg-white space-y-3 flex-col w-full">
       <div
         id="app-header"
         className="p-3 items-center shadow-sm flex flex-row bg-white justify-between"
       >
         <Avatar>
-          <AvatarFallback>O</AvatarFallback>
+          <AvatarFallback>
+            {getInitials(user.personalInfo.fullName)}
+          </AvatarFallback>
         </Avatar>
         <div className="flex justify-center items-center space-x-1">
           <LetmikukSymbolLogo className="max-w-6" />
           <LetmikukLogo className="max-w-24" />
         </div>
 
-        <Settings className="text-muted-foreground" />
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Settings className="text-muted-foreground" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="text-sm bg-white">
+            <DropdownMenuItem>
+              {user.personalInfo.role === "mother"
+                ? "Edit Profil Anak"
+                : "Edit Data Anak"}
+            </DropdownMenuItem>
+            <DropdownMenuItem className="hover:!text-red-500">
+              <button
+                className="flex items-center p-0 font-normal gap-0 gap-x-2 whitespace-nowrap [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
+                onClick={logout}
+              >
+                Logout <LogOut />
+              </button>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
-      <div className="bg-white flex flex-col p-5">
-        <p>Ryan Tobing</p>
-        <p className="text-sm text-muted-foreground">ryanft1505@gmail.com</p>
+      <div className="bg-white flex flex-col px-5 py-2">
+        <p>{user.personalInfo.fullName}</p>
         <p className="text-sm text-muted-foreground">
-          NIK: 2130 3184 0912 3134
+          {user.personalInfo.email}
         </p>
-        <div className="mt-5 gap-3 grid grid-cols-3">
+        <Badge className="text-xs mt-1 bg-pink-100 text-pink-500 max-w-fit hover:bg-pink-200">
+          {user &&
+            (user.personalInfo.role === "mother"
+              ? (user.motherInfo?.pregnancyStartDate &&
+                  `${getPregnantDuration(new Date(user.motherInfo?.pregnancyStartDate))}`) ||
+                "Tanggal HTPT Belum dicantumkan"
+              : user.personalInfo.nik)}
+        </Badge>
+        <Link className="mt-5 mb-3" href={"/app/chatbot"}>
+          <Button
+            variant={"outline"}
+            className="w-full bg-white text-foreground mt-3 py-8 rounded-xl"
+          >
+            <GradientText
+              speed={5}
+              className="font-bold"
+              text="Tanya LETMIKUK AI"
+            />
+            <Sparkle />
+          </Button>
+        </Link>
+        <div className="gap-3 grid grid-cols-3">
           <Button
             className=" flex rounded-xl flex-col aspect-square w-full py-10 text-lg"
             variant={"outline"}
@@ -105,19 +156,6 @@ export default function Page() {
             <p className="text-xs text-wrap">Perpustakaan</p>
           </Button>
         </div>
-        <Link href={"/app/chatbot"}>
-          <Button
-            variant={"outline"}
-            className="w-full bg-white text-foreground mt-3 py-8 rounded-xl"
-          >
-            <GradientText
-              speed={5}
-              className="font-bold"
-              text="Tanya LETMIKUK AI"
-            />
-            <Sparkle />
-          </Button>
-        </Link>
       </div>
       <div className="absolute bottom-0 px-8 text-muted-foreground border-t bg-white flex-row justify-between shadow-sm py-5 flex w-full">
         <div className="flex flex-col justify-center items-center">
@@ -139,6 +177,6 @@ export default function Page() {
           <p className="text-xs">Bantuan</p>
         </div>
       </div>
-    </div>
+    </ScrollArea>
   );
 }
