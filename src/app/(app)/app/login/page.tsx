@@ -33,6 +33,7 @@ export default function Page() {
 
       if (res.ok) {
         router.push("/app"); // Redirect after successful login
+        router.refresh();
       } else {
         setErrorMessage(data.message || "Login failed."); // Display API error message
       }

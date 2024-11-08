@@ -74,14 +74,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const intentSubtopic = {
-    "1": "overview",
-    "2": "kebutuhan_asupan",
-    "3": "porsi_makan",
-    "4": "ibu_hamil_menyusui",
-    "5": "nutrisi_balita",
-  };
-
   try {
     const pc = new Pinecone({
       apiKey: process.env.PINECONE_API_KEY as string,
@@ -92,11 +84,20 @@ export async function POST(request: NextRequest) {
     });
 
     const KlasifikasiSubtopik = z.object({
-      overview_nutrisi: z.boolean(),
-      kebutuhan_asupan: z.boolean(),
-      contoh_resep: z.boolean(),
-      ibu_hamil_menyusui: z.boolean(),
-      nutrisi_balita: z.boolean(),
+      overview: z.boolean(), // Overview umum tentang nutrisi
+      kebutuhan: z.boolean(), // Informasi umum tentang kebutuhan asupan
+      contoh_resep: z.object({
+        ibu_hamil: z.number().min(0), // Untuk ibu hamil/menyusui
+        balita_6_8: z.number().min(0), // Untuk anak 6-8 bulan
+        balita_9_11: z.number().min(0), // Untuk anak 9-11 bulan
+        balita_12_23: z.number().min(0), // Untuk anak 12-23 bulan
+        balita_2_5: z.number().min(0), // Untuk anak 2-5 tahun
+      }),
+      nutrisi_ibu_hamil: z.boolean(), // Nutrisi khusus untuk ibu hamil/menyusui
+      nutrisi_balita_6_8: z.boolean(), // Nutrisi khusus untuk anak 6-8 bulan
+      nutrisi_balita_9_11: z.boolean(), // Nutrisi khusus untuk anak 9-11 bulan
+      nutrisi_balita_12_23: z.boolean(), // Nutrisi khusus untuk anak 12-23 bulan
+      nutrisi_balita_2_5: z.boolean(), // Nutrisi khusus untuk anak 2-5 tahun
     });
 
     type KlasifikasiSubtopik = z.infer<typeof KlasifikasiSubtopik>;
@@ -106,12 +107,23 @@ export async function POST(request: NextRequest) {
       messages: [
         {
           role: "system",
-          content: `Tolong klasifikasi apa saja niat user berdasarkan subtopik berikut:
-            1. Overview umum tentang nutrisi.
-            2. Informasi umum tentang kebutuhan asupan.
-            3. Contoh resep.
-            4. Nutrisi untuk ibu hamil / ibu menyusui.
-            5. Nutrisi untuk anak.
+          content: `Klasifikasikan niat pengguna berdasarkan subtopik berikut:
+        1. Overview umum tentang nutrisi.
+        2. Informasi umum tentang kebutuhan asupan.
+        3. Contoh resep dengan jumlah yang diminta pengguna (0 jika tidak ada):
+           - untuk ibu hamil atau menyusui
+           - untuk anak berusia 6-8 bulan
+           - untuk anak berusia 9-11 bulan
+           - untuk anak berusia 12-23 bulan
+           - untuk anak berusia 2-5 tahun.
+        4. Nutrisi khusus:
+           - untuk ibu hamil atau menyusui
+           - untuk anak berusia 6-8 bulan
+           - untuk anak berusia 9-11 bulan
+           - untuk anak berusia 12-23 bulan
+           - untuk anak berusia 2-5 tahun.
+
+      Berikan jumlah contoh resep sebagai angka dan true/false untuk topik lainnya dalam format JSON yang ringkas.
 `,
         },
         { role: "user", content: prompt },
@@ -223,7 +235,7 @@ export async function POST(request: NextRequest) {
           content: `Kamu adalah asisten AI yang pintar dan amat ramah bernama 'LETMIKUK AI' (Layanan Edukasi Terkait Malnutrisi dan Intervensi Kesehatan Untuk Keluarga) yang membantu ibu-ibu di Indonesia menjaga kesehatan dan nutrisi mereka serta anak-anak mereka, terutama yang sedang hamil atau menyusui.
       Sapalah pengguna dan dengan ramah fokus untuk menjawab sesuai permintaan user sebisa mungkin menggunakan informasi dari konteks database tapi apabila konteks database tidak relevan untuk menjawab, abaikan dan gunakan pengetahuan umum anda sebagai AI. Saat menjawab melalui informasi konteks database, sebut juga sumber informasinya. Rata-rata sumber adalah dari ayosehat (program & kampanye kesehatan oleh kementerian kesehatan Indonesia). Biasanya kamu akan menjawab seperti memberikan informasi yang relevan tentang gizi ibu dan anak, tips perawatan kehamilan dan menyusui, contoh resep bergizi, serta panduan untuk memantau pertumbuhan anak agar terhindar dari stunting atau kekurangan gizi.
       Fokuslah pada edukasi yang dapat membantu anak-anak bertumbuh secara normal sesuai usia mereka, serta berikan saran-saran sederhana dan mudah dipraktikkan di rumah.
-      Apabila disuruh memberi contoh resep, hindari membuat sendiri kecuali kalau di konteks database tidak ada resep yg sesuai target umur. Apabila konteks resep ada has_image: true, maka gak usah tulis ulang bahan dan langkah-langkahnya karena sistem akan mengirimnya ke user langsung. Biasakan menanya apabila ada lain yang bisa dibantu mengenai topik pertanyaan atau apabila memberi contoh resep, tanya apakah resepnya ingin ditulis langsung (mungkin user gak mau resep dalam bentuk foto).Tolak pertanyaan yang tidak terkait dengan kesehatan ibu atau anak.`,
+      Apabila disuruh memberi contoh resep, cukup sebutkan yang kami taruh di konteks database termasuk sumbernya, target konsumernya, dan deskripsi singkat atas apa yang perlu disiapkan untuk membuatnya. Untuk resep tidak usah kasih langkah-langkahnya karena sistem akan mengirim gambar resep dan bahan ke pengguna.`,
         },
         {
           role: "user",
