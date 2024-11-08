@@ -10,7 +10,13 @@ import {
 } from "@/components/ui/chat/chat-bubble";
 import { ChatInput } from "@/components/ui/chat/chat-input";
 import { ChatMessageList } from "@/components/ui/chat/chat-message-list";
-import { ArrowLeft, BotMessageSquare, Send } from "lucide-react";
+import {
+  ArrowLeft,
+  BookOpenText,
+  BotMessageSquare,
+  ChefHat,
+  Send,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import Markdown from "react-markdown";
 import { useAnimatedText } from "@/lib/hooks/useAnimatedText";
@@ -256,13 +262,20 @@ Semoga rencana makan ini bermanfaat untuk anak Anda!`,
                           {referenceImages.map((img: any, idx: number) => (
                             <Dialog>
                               <DialogTrigger asChild>
-                                <div className="overflow-hidden rounded-lg">
+                                <div className="overflow-hidden relative rounded-lg">
                                   <img
                                     key={img.id ? img.id : idx}
                                     src={urlFor(img.image).url()}
                                     alt={img.description}
                                     className="w-20 h-20 object-cover"
                                   />
+                                  <div className="absolute bottom-1 right-1 p-1 bg-white text-black rounded-full">
+                                    {img.imageType === "recipe_example" ? (
+                                      <ChefHat />
+                                    ) : (
+                                      <BookOpenText />
+                                    )}
+                                  </div>
                                 </div>
                               </DialogTrigger>
                               <DialogContent className="max-w-[320px]">

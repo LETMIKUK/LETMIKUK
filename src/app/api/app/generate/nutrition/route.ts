@@ -87,17 +87,17 @@ export async function POST(request: NextRequest) {
       overview: z.boolean(), // Overview umum tentang nutrisi
       kebutuhan: z.boolean(), // Informasi umum tentang kebutuhan asupan
       contoh_resep: z.object({
-        ibu_hamil: z.number().min(0), // Untuk ibu hamil/menyusui
-        balita_6_8: z.number().min(0), // Untuk anak 6-8 bulan
-        balita_9_11: z.number().min(0), // Untuk anak 9-11 bulan
-        balita_12_23: z.number().min(0), // Untuk anak 12-23 bulan
-        balita_2_5: z.number().min(0), // Untuk anak 2-5 tahun
+        ibu_hamil: z.number(), // Untuk ibu hamil/menyusui
+        balita_6_8_bulan: z.number(), // Untuk anak 6-8 bulan
+        balita_9_11_bulan: z.number(), // Untuk anak 9-11 bulan
+        balita_12_23_bulan: z.number(), // Untuk anak 12-23 bulan
+        balita_2_5_tahun: z.number(), // Untuk anak 2-5 tahun
       }),
       nutrisi_ibu_hamil: z.boolean(), // Nutrisi khusus untuk ibu hamil/menyusui
-      nutrisi_balita_6_8: z.boolean(), // Nutrisi khusus untuk anak 6-8 bulan
-      nutrisi_balita_9_11: z.boolean(), // Nutrisi khusus untuk anak 9-11 bulan
-      nutrisi_balita_12_23: z.boolean(), // Nutrisi khusus untuk anak 12-23 bulan
-      nutrisi_balita_2_5: z.boolean(), // Nutrisi khusus untuk anak 2-5 tahun
+      nutrisi_balita_6_8_bulan: z.boolean(), // Nutrisi khusus untuk anak 6-8 bulan
+      nutrisi_balita_9_11_bulan: z.boolean(), // Nutrisi khusus untuk anak 9-11 bulan
+      nutrisi_balita_12_23_bulan: z.boolean(), // Nutrisi khusus untuk anak 12-23 bulan
+      nutrisi_balita_2_5_tahun: z.boolean(), // Nutrisi khusus untuk anak 2-5 tahun
     });
 
     type KlasifikasiSubtopik = z.infer<typeof KlasifikasiSubtopik>;
@@ -136,14 +136,79 @@ export async function POST(request: NextRequest) {
 
     console.log("intents:", intents);
 
+    // Mapping to match intents with vector subtopics
     const intentToSubtopicMapping = {
-      overview_nutrisi: ["overview", "tips"],
-      kebutuhan_asupan: ["kebutuhan_asupan", "porsi_makan", "tips"],
-      contoh_resep: ["resep", "makanan_tambahan"],
-      ibu_hamil_menyusui: ["kelas_ibu_hamil", "tips"],
-      nutrisi_balita: ["masalah_gizi", "makanan_tambahan", "tips"],
+      overview: ["overview", "tips"],
+      kebutuhan: ["kebutuhan_asupan", "porsi_makan", "tips"],
+      nutrisi_ibu_hamil: ["kelas_ibu_hamil", "tips"],
+      nutrisi_balita_6_8: ["masalah_gizi", "makanan_tambahan", "tips"],
+      nutrisi_balita_9_11: ["masalah_gizi", "makanan_tambahan", "tips"],
+      nutrisi_balita_12_23: ["masalah_gizi", "makanan_tambahan", "tips"],
+      nutrisi_balita_2_5: ["masalah_gizi", "makanan_tambahan", "tips"],
     };
 
+    // Sub-intents for recipe categories
+    const recipeIntents = [
+      { key: "ibu_hamil", label: "ibu_hamil" },
+      { key: "balita_6_8_bulan", label: "balita_6_8_bulan" },
+      { key: "balita_9_11_bulan", label: "balita_9_11_bulan" },
+      { key: "balita_12_23_bulan", label: "balita_12_23_bulan" },
+      { key: "balita_2_5_tahun", label: "balita_2_5_tahun" },
+    ];
+
+    // Step 1: Collect necessary recipe categories and quantities
+    const recipeQueries = recipeIntents
+      .map((intent) => ({
+        label: intent.label,
+        count:
+          intents.contoh_resep[
+            intent.key as keyof typeof intents.contoh_resep
+          ] || 0,
+      }))
+      .filter((query) => query.count > 0); // Only keep recipe types with non-zero counts
+
+    console.log("recipeQueries:", recipeQueries);
+    // Generate embedding
+    const queryEmbedding = await generateEmbedding({
+      openai: openai,
+      text: prompt,
+    });
+
+    const indexName = "rag-test";
+    const index = pc.index(indexName);
+
+    let rawRecipeResults: any[] = [];
+    let rawAdditionalResults: any[] = [];
+
+    // Step 1: Retrieve recipes first
+    const recipeResults = [];
+    if (queryEmbedding && recipeQueries.length > 0) {
+      for (const query of recipeQueries) {
+        const response = await index.query({
+          vector: queryEmbedding,
+          topK: query.count,
+          includeMetadata: true,
+          filter: {
+            recipe_consumer: { $eq: query.label },
+          },
+        });
+        console.log("pinecone recipe response:", response);
+        rawRecipeResults.push(...response.matches);
+        console.log("...response.matches push:", ...response.matches);
+        recipeResults.push(
+          ...response.matches.map((match: any) => {
+            const { text, recipe_consumer, recipe_portion, source } =
+              match.metadata;
+            return `Resep untuk ${recipe_consumer} ${recipe_portion ? `(Porsi: ${recipe_portion})` : ""}:
+    Sumber: ${source}
+    ${text && recipeQueries.length <= 1 ? `Detail: ${text}` : ""}`;
+          })
+        );
+      }
+    }
+
+    console.log("recipeResults:", recipeResults);
+    // Step 2: Collect remaining subtopics based on non-recipe intents
     const selectedSubtopics = Object.keys(intents)
       .filter(
         (intent) =>
@@ -157,35 +222,51 @@ export async function POST(request: NextRequest) {
           ]
       );
 
-    const uniqueSubtopics = [...new Set(selectedSubtopics)];
+    // Make the list unique, then exclude recipe subtopics to avoid duplication
+    const uniqueSubtopics = [...new Set(selectedSubtopics)].filter(
+      (subtopic) => !recipeQueries.some((r) => r.label === subtopic)
+    );
 
-    // Retrieve relevant context from Pinecone
-    const indexName = "rag-test"; // Make sure this is your index name
-    const index = pc.Index(indexName);
-    const queryEmbedding = await generateEmbedding({
-      openai: openai,
-      text: prompt,
-    }); // Assuming you have a function to generate embeddings
+    console.log("uniqueSubtopics:", uniqueSubtopics);
 
-    let pineconeResponse;
-    if (queryEmbedding) {
-      pineconeResponse = await index.query({
+    // Step 2: Query for additional nutritional information
+    let additionalResults: any = [];
+    if (queryEmbedding && uniqueSubtopics.length > 0) {
+      const additionalResponse = await index.query({
         vector: queryEmbedding,
-        topK: 5, // Number of relevant items to retrieve
+        topK: 5,
         includeMetadata: true,
         filter: {
           subtopic: { $in: uniqueSubtopics },
         },
       });
+      console.log("pinecone additional results response:", additionalResponse);
+      rawAdditionalResults.push(...additionalResponse.matches);
+
+      // Format and push each additional result
+      additionalResults = additionalResponse.matches.map((match: any) => {
+        const { text, subtopic, source } = match.metadata;
+        return `Topik: ${subtopic}
+Sumber: ${source}
+Detail: ${text}`;
+      });
     }
+    console.log("additionalResults:", additionalResults);
+
+    // Combine recipe and additional information results for the response
+    const pineconeResponse: any = [...recipeResults, ...additionalResults];
+    const rawResponse: any = [...rawRecipeResults, ...rawAdditionalResults];
 
     console.log("Pinecone query response:", pineconeResponse);
+    console.log("raw response:", rawResponse);
 
-    const top5Results = pineconeResponse?.matches?.slice(0, 6);
+    const imageIds = rawResponse
+      .filter((result: any) => result?.metadata?.has_image)
+      .flatMap((result: any) => result?.metadata?.image_reference)
+      .slice(0, 10); // Limit to 10 images
 
-    const imageIds = top5Results
-      ?.filter((result) => result?.metadata?.has_image)
-      ?.flatMap((result) => result?.metadata?.image_reference);
+    console.log("imageIds:", imageIds);
+
     let imageDocs = [];
 
     if (imageIds && imageIds.length > 0) {
@@ -198,25 +279,22 @@ export async function POST(request: NextRequest) {
       });
 
       // Sanity query to fetch images by IDs
-      const imageQuery = `*[_type == "augmentImage" && id in $ids]{ id, image, description }`;
+      const imageQuery = `*[_type == "augmentImage" && id in $ids]{ id, image, description, imageType }`;
       imageDocs = await client.fetch(imageQuery, { ids: imageIds });
       console.log("Fetched imageDocs:", imageDocs);
     }
 
     // Extract the relevant chunks
-    const contextChunks = pineconeResponse?.matches?.map(
-      (match) => match?.metadata?.text
-    );
+    // Build context chunks for the LLM
+    const contextChunks = pineconeResponse;
 
-    console.log("contextChunks:", contextChunks);
-
-    // Combine the context chunks into a single string
+    // Join the context chunks into a single string
     let combinedContext = contextChunks?.join("\n\n");
 
     // Truncate context if it exceeds a certain length
     const maxContextLength = 1000; // Set a suitable limit based on token count
-    if (combinedContext && combinedContext?.length > maxContextLength) {
-      combinedContext = combinedContext?.slice(0, maxContextLength) + "..."; // Truncate and add ellipsis
+    if (combinedContext && combinedContext.length > maxContextLength) {
+      combinedContext = combinedContext.slice(0, maxContextLength) + "..."; // Truncate and add ellipsis
     }
 
     console.log("combinedContext:", combinedContext);
@@ -227,19 +305,85 @@ export async function POST(request: NextRequest) {
     const userAbout = extractRelevantUserContext(userProfile);
     console.log("userAbout:", userAbout);
     // Optionally filter or process the context chunks here if needed
+    function generateSystemPrompt(intent: KlasifikasiSubtopik) {
+      const instructions = [
+        "Kamu adalah asisten AI yang pintar dan amat ramah bernama 'LETMIKUK AI' (Layanan Edukasi Terkait Malnutrisi dan Intervensi Kesehatan Untuk Keluarga) yang membantu ibu-ibu di Indonesia menjaga kesehatan dan nutrisi mereka serta anak-anak mereka, terutama yang sedang hamil atau menyusui.",
+      ];
+
+      if (intent.overview) {
+        instructions.push(
+          "Berikan overview umum mengenai nutrisi yang relevan untuk pengguna."
+        );
+      }
+
+      if (intent.kebutuhan) {
+        instructions.push(
+          "Sampaikan informasi kebutuhan asupan nutrisi yang sesuai dengan kebutuhan pengguna."
+        );
+      }
+
+      if (intent.contoh_resep) {
+        const resepTypes = [
+          { key: "ibu_hamil", label: "untuk ibu hamil/menyusui" },
+          { key: "balita_6_8", label: "untuk anak usia 6-8 bulan" },
+          { key: "balita_9_11", label: "untuk anak usia 9-11 bulan" },
+          { key: "balita_12_23", label: "untuk anak usia 12-23 bulan" },
+          { key: "balita_2_5", label: "untuk anak usia 2-5 tahun" },
+        ];
+
+        const resepInstructions = resepTypes
+          .filter(
+            ({ key }) =>
+              intent.contoh_resep[key as keyof typeof intent.contoh_resep] > 0
+          )
+          .map(
+            ({ key, label }) =>
+              `Berikan ${intent.contoh_resep[key as keyof typeof intent.contoh_resep]} contoh resep ${label}.`
+          );
+
+        if (resepInstructions.length > 0) {
+          instructions.push(...resepInstructions);
+        }
+      }
+
+      const nutrisiTypes = [
+        { key: "nutrisi_ibu_hamil", label: "ibu hamil/menyusui" },
+        { key: "nutrisi_balita_6_8", label: "anak usia 6-8 bulan" },
+        { key: "nutrisi_balita_9_11", label: "anak usia 9-11 bulan" },
+        { key: "nutrisi_balita_12_23", label: "anak usia 12-23 bulan" },
+        { key: "nutrisi_balita_2_5", label: "anak usia 2-5 tahun" },
+      ];
+
+      const nutrisiInstructions = nutrisiTypes
+        .filter(({ key }) => intent[key as keyof typeof intent] === true)
+        .map(({ label }) => `Berikan informasi nutrisi khusus untuk ${label}.`);
+
+      if (nutrisiInstructions.length > 0) {
+        instructions.push(...nutrisiInstructions);
+      }
+
+      instructions.push(
+        "Sertakan sumber informasi dari database jika ada, dan apabila konteks database tidak relevan untuk menjawab, abaikan dan gunakan pengetahuan umum anda sebagai AI."
+      );
+
+      return instructions.join(" ");
+    }
+
+    // Generate system prompt conditionally
+    const systemPrompt = generateSystemPrompt(intents);
+
+    console.log("systemPrompt:", systemPrompt);
+
     const stream = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
-          content: `Kamu adalah asisten AI yang pintar dan amat ramah bernama 'LETMIKUK AI' (Layanan Edukasi Terkait Malnutrisi dan Intervensi Kesehatan Untuk Keluarga) yang membantu ibu-ibu di Indonesia menjaga kesehatan dan nutrisi mereka serta anak-anak mereka, terutama yang sedang hamil atau menyusui.
-      Sapalah pengguna dan dengan ramah fokus untuk menjawab sesuai permintaan user sebisa mungkin menggunakan informasi dari konteks database tapi apabila konteks database tidak relevan untuk menjawab, abaikan dan gunakan pengetahuan umum anda sebagai AI. Saat menjawab melalui informasi konteks database, sebut juga sumber informasinya. Rata-rata sumber adalah dari ayosehat (program & kampanye kesehatan oleh kementerian kesehatan Indonesia). Biasanya kamu akan menjawab seperti memberikan informasi yang relevan tentang gizi ibu dan anak, tips perawatan kehamilan dan menyusui, contoh resep bergizi, serta panduan untuk memantau pertumbuhan anak agar terhindar dari stunting atau kekurangan gizi.
-      Fokuslah pada edukasi yang dapat membantu anak-anak bertumbuh secara normal sesuai usia mereka, serta berikan saran-saran sederhana dan mudah dipraktikkan di rumah.
-      Apabila disuruh memberi contoh resep, cukup sebutkan yang kami taruh di konteks database termasuk sumbernya, target konsumernya, dan deskripsi singkat atas apa yang perlu disiapkan untuk membuatnya. Untuk resep tidak usah kasih langkah-langkahnya karena sistem akan mengirim gambar resep dan bahan ke pengguna.`,
+          content: systemPrompt,
         },
         {
           role: "user",
-          content: `${combinedContext ? `konteks latar belakang user: ${userAbout ? userAbout : "data latar belakang user kosong"}\n\nkonteks database: ${combinedContext}` : ""}\n\n${prompt}`, // Combine context with user prompt
+          content: `${userAbout ? `konteks latar belakang user: ${userAbout}\n\n` : ""}${combinedContext ? `konteks database: ${combinedContext}\n\n` : ""}${prompt}`, // Combine context with user prompt
         },
       ],
       temperature: 1,
